@@ -1,1 +1,50 @@
 @import "tailwindcss";
+
+/* stylelint-disable-next-line at-rule-no-unknown */
+@theme {
+  --color-san-felix-50: #f3ffe0;
+  --color-san-felix-100: #e2ffbb;
+  --color-san-felix-200: #c5ff80;
+  --color-san-felix-300: #9cff37;
+  --color-san-felix-400: #77ff00;
+  --color-san-felix-500: #56ff00;
+  --color-san-felix-600: #3dd300;
+  --color-san-felix-700: #2e9f00;
+  --color-san-felix-800: #267b00;
+  --color-san-felix-900: #1d5d00;
+  --color-san-felix-950: #0d3b00;
+
+  --color-lima-50: #f3ffe6;
+  --color-lima-100: #e4fec9;
+  --color-lima-200: #cafc9a;
+  --color-lima-300: #a6f75f;
+  --color-lima-400: #86ec2f;
+  --color-lima-500: #66d210;
+  --color-lima-600: #56be09;
+  --color-lima-700: #3b800b;
+  --color-lima-800: #31650f;
+  --color-lima-900: #2b5512;
+  --color-lima-950: #132f04;
+
+  --font-family-montserrat: 'Montserrat', sans-serif;
+}
+
+@layer base {
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: var(--font-family-montserrat);
+  }
+
+  
+
+  body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+}
