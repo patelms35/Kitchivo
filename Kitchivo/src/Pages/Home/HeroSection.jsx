@@ -7,10 +7,6 @@ const HeroSection = () => {
     'https://images.unsplash.com/photo-1556911220-bff31c812dba?w=1920&h=1080&fit=crop',
     'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=1920&h=1080&fit=crop',
     'https://images.unsplash.com/photo-1556909212-d5b604d0c90d?w=1920&h=1080&fit=crop',
-    'https://images.unsplash.com/photo-1565183928294-7d22d2650c6e?w=1920&h=1080&fit=crop',
-    'https://images.unsplash.com/photo-1588854337221-4cf9fa96589c?w=1920&h=1080&fit=crop',
-    'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=1920&h=1080&fit=crop',
-    'https://images.unsplash.com/photo-1565538810643-b5bdb714032a?w=1920&h=1080&fit=crop',
     'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=1920&h=1080&fit=crop',
     'https://images.unsplash.com/photo-1556912172-45b7abe8b7e1?w=1920&h=1080&fit=crop',
     'https://images.unsplash.com/photo-1507089947368-19c1da9775ae?w=1920&h=1080&fit=crop',
@@ -55,7 +51,7 @@ const HeroSection = () => {
         ))}
       </div>
 
-      <div className="relative z-10 h-full flex items-center py-16 md:py-24">
+      <div className="relative z-10 h-full flex items-center py-12 md:py-16">
         <div className="max-w-[1400px] mx-auto px-6 lg:px-8 w-full">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <div className="space-y-6">

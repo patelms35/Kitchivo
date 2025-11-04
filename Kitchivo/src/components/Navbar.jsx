@@ -6,6 +6,7 @@ const Navbar = () => {
   const [pagesDropdown, setPagesDropdown] = useState(false);
   const [collectionsDropdown, setCollectionsDropdown] = useState(false);
   const [blogDropdown, setBlogDropdown] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
 
   // Smooth scroll function
   const scrollToSection = (id) => {
@@ -122,7 +123,10 @@ const Navbar = () => {
                 <span className="absolute -top-2 -right-2 bg-lima-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">0</span>
               </button>
 
-              <button className="text-gray-800 hover:text-lima-600 transition-colors">
+              <button 
+                onClick={() => setSearchOpen(true)}
+                className="text-gray-800 hover:text-lima-600 transition-colors"
+              >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
@@ -155,9 +159,61 @@ const Navbar = () => {
           <a href="#contact" className="block px-3 py-2 text-gray-800 hover:text-lima-600 hover:bg-gray-50 rounded-md font-medium">Contact</a>
         </div>
       </div>
+
+      {/* Search Popup Overlay */}
+      {searchOpen && (
+        <div className="fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm transition-opacity duration-300">
+          <div className="flex items-start justify-center min-h-screen pt-20">
+            <div className="bg-white w-full max-w-[1400px] mx-4 rounded-2xl shadow-2xl transform transition-all duration-300">
+              {/* Search Header */}
+              <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+                <h3 className="text-2xl font-bold text-gray-800">Search Products</h3>
+                <button 
+                  onClick={() => setSearchOpen(false)}
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              {/* Search Input */}
+              <div className="px-6 py-6">
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Search for products..."
+                    autoFocus
+                    className="w-full px-6 py-4 pr-12 text-lg border-2 border-gray-200 rounded-full focus:outline-none focus:border-lima-500 transition-colors"
+                  />
+                  <button className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-lima-600 transition-colors">
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              {/* Popular Searches */}
+              <div className="px-6 pb-6">
+                <p className="text-sm text-gray-500 mb-3">Popular Searches:</p>
+                <div className="flex flex-wrap gap-2">
+                  <button className="px-4 py-2 bg-gray-100 hover:bg-lima-100 text-gray-700 hover:text-lima-700 rounded-full text-sm transition-colors">Kitchen Tools</button>
+                  <button className="px-4 py-2 bg-gray-100 hover:bg-lima-100 text-gray-700 hover:text-lima-700 rounded-full text-sm transition-colors">Cookware</button>
+                  <button className="px-4 py-2 bg-gray-100 hover:bg-lima-100 text-gray-700 hover:text-lima-700 rounded-full text-sm transition-colors">Storage</button>
+                  <button className="px-4 py-2 bg-gray-100 hover:bg-lima-100 text-gray-700 hover:text-lima-700 rounded-full text-sm transition-colors">Home Decor</button>
+                  <button className="px-4 py-2 bg-gray-100 hover:bg-lima-100 text-gray-700 hover:text-lima-700 rounded-full text-sm transition-colors">Dining Sets</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </nav>
   );
 };
 
 export default Navbar;
+
 
