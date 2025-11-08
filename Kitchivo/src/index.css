@@ -26,7 +26,19 @@
   --color-lima-900: #2b5512;
   --color-lima-950: #132f04;
 
-  --font-family-montserrat: 'Montserrat', sans-serif;
+  --color-error-50: #fef3f2;
+  --color-error-100: #fee4e2;
+  --color-error-200: #ffcdc9;
+  --color-error-300: #fdaaa4;
+  --color-error-400: #fa796f;
+  --color-error-500: #f14e42;
+  --color-error-600: #d92d20;
+  --color-error-700: #bb251a;
+  --color-error-800: #9b2219;
+  --color-error-900: #80231c;
+  --color-error-950: #460d09;
+
+  --font-family-montserrat: "Montserrat", sans-serif;
 }
 
 @layer base {
@@ -36,8 +48,6 @@
     box-sizing: border-box;
     font-family: var(--font-family-montserrat);
   }
-
-  
 
   body {
     -webkit-font-smoothing: antialiased;
@@ -52,7 +62,7 @@
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
-  
+
   .scrollbar-hide {
     -ms-overflow-style: none;
     scrollbar-width: none;
