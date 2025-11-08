@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import Logo from "../assets/Logo_Full.png";
 
 const Footer = () => {
@@ -139,20 +140,20 @@ const Footer = () => {
             </h3>
             <ul className="space-y-2 sm:space-y-3">
               <li>
-                <a
-                  href="#aboutus"
+                <Link
+                  to="/about"
                   className="text-gray-700 hover:text-lima-700 active:text-lima-800 transition-colors text-xs sm:text-sm font-medium"
                 >
                   About Us
-                </a>
+                </Link>
               </li>
               <li>
-                <a
-                  href="#contact"
+                <Link
+                  to="/contact"
                   className="text-gray-700 hover:text-lima-700 active:text-lima-800 transition-colors text-xs sm:text-sm font-medium"
                 >
                   Contact Us
-                </a>
+                </Link>
               </li>
               <li>
                 <a

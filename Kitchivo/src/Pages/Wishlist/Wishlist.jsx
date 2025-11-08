@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 import ProductCard from '../../components/ProductCard';
+import Breadcrumb from '../../components/Breadcrumb';
 import deleteIcon from "../../assets/delete.svg";
 
 const Wishlist = () => {
@@ -11,48 +12,48 @@ const Wishlist = () => {
     {
       id: 1,
       name: 'Premium Non-Stick Frying Pan',
-      price: '$49.99',
-      originalPrice: '$79.99',
+      price: '₹4,199',
+      originalPrice: '₹6,799',
       discount: '-38%',
       image: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=500',
     },
     {
       id: 2,
       name: 'Stainless Steel Cookware Set',
-      price: '$129.99',
-      originalPrice: '$199.99',
+      price: '₹10,999',
+      originalPrice: '₹16,999',
       discount: '-35%',
       image: 'https://images.unsplash.com/photo-1585659722983-3a675dabf23d?w=500',
     },
     {
       id: 3,
       name: 'Ceramic Dinner Plate Set',
-      price: '$39.99',
-      originalPrice: '$59.99',
+      price: '₹3,299',
+      originalPrice: '₹4,999',
       discount: '-33%',
       image: 'https://images.unsplash.com/photo-1578500494198-246f612d3b3d?w=500',
     },
     {
       id: 4,
       name: 'Kitchen Knife Set - Professional',
-      price: '$89.99',
-      originalPrice: '$149.99',
+      price: '₹7,499',
+      originalPrice: '₹12,499',
       discount: '-40%',
       image: 'https://images.unsplash.com/photo-1593618998160-e34014e67546?w=500',
     },
     {
       id: 5,
       name: 'Glass Storage Container Set',
-      price: '$34.99',
-      originalPrice: '$49.99',
+      price: '₹2,899',
+      originalPrice: '₹4,199',
       discount: '-30%',
       image: 'https://images.unsplash.com/photo-1610701596007-11502861dcfa?w=500',
     },
     {
       id: 6,
       name: 'Bamboo Cutting Board',
-      price: '$24.99',
-      originalPrice: '$39.99',
+      price: '₹2,099',
+      originalPrice: '₹3,299',
       discount: '-38%',
       image: 'https://images.unsplash.com/photo-1565123409695-7b5ef63a2efb?w=500',
     },
@@ -71,21 +72,13 @@ const Wishlist = () => {
   return (
     <div className="min-h-screen bg-gray-50 font-sans">
       <Navbar />
-      
-      {/* Breadcrumb */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center gap-2 text-sm">
-            <Link to="/" className="text-gray-500 hover:text-lima-600 transition-colors">
-              Home
-            </Link>
-            <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
-            </svg>
-            <span className="text-gray-900 font-medium">Wishlist</span>
-          </div>
-        </div>
-      </div>
+
+      <Breadcrumb 
+        items={[
+          { label: 'Home', href: '/' },
+          { label: 'Wishlist' }
+        ]}
+      />
 
       {/* Main Content */}
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">

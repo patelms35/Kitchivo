@@ -1,4 +1,5 @@
 import React, { useRef } from 'react';
+import { Link } from 'react-router-dom';
 
 const CategoriesSection = () => {
   const scrollContainerRef = useRef(null);
@@ -62,7 +63,7 @@ const CategoriesSection = () => {
           >
             {categories.map((category) => (
               <div key={category.id} className="flex-none w-[110px] sm:w-[130px] md:w-[140px] snap-start">
-                <div className="group cursor-pointer text-center">
+                <Link to={`/category/${category.name.toLowerCase().replace(/\s+/g, '-')}`} className="group cursor-pointer text-center block">
                   <div className="flex justify-center mb-2 sm:mb-3">
                     <div className="w-full aspect-square rounded-full overflow-hidden bg-white shadow-md hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95 ring-2 ring-gray-100 group-hover:ring-4 group-hover:ring-lima-500">
                       <img 
@@ -73,7 +74,7 @@ const CategoriesSection = () => {
                     </div>
                   </div>
                   <h3 className="font-medium text-xs sm:text-sm text-gray-800 group-hover:text-lima-600 transition-colors px-1">{category.name}</h3>
-                </div>
+                </Link>
               </div>
             ))}
           </div>

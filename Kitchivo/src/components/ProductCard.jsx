@@ -1,16 +1,15 @@
-import React, { useState } from "react";
-import ProductQuickView from "./ProductQuickView";
+import React from "react";
+import { useNavigate } from "react-router-dom";
 
 const ProductCard = ({ product, hideWishlistButton = false }) => {
-  const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
+  const navigate = useNavigate();
+
+  const handleQuickView = () => {
+    navigate(`/product/${product.id}`);
+  };
 
   return (
     <>
-      <ProductQuickView
-        product={product}
-        isOpen={isQuickViewOpen}
-        onClose={() => setIsQuickViewOpen(false)}
-      />
       <div className="group cursor-pointer">
         {/* Image Container */}
         <div className="aspect-square overflow-hidden bg-gray-100 rounded-lg mb-3 sm:mb-4 relative">
@@ -75,7 +74,7 @@ const ProductCard = ({ product, hideWishlistButton = false }) => {
             <button
               className=" cursor-pointer flex-1 bg-gray-900 text-white py-2 sm:py-2.5 px-2 sm:px-4 rounded-md hover:bg-lima-600 active:bg-lima-700 transition-all duration-300 flex items-center justify-center gap-1 sm:gap-2 text-xs sm:text-sm font-medium"
               aria-label="Quick View"
-              onClick={() => setIsQuickViewOpen(true)}
+              onClick={handleQuickView}
             >
               <svg
                 className="w-3.5 h-3.5 sm:w-4 sm:h-4"
