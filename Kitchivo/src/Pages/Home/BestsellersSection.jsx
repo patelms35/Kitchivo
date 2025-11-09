@@ -1,6 +1,7 @@
 import React, { useRef } from 'react';
 import { Link } from 'react-router-dom';
 import ProductCard from '../../components/ProductCard';
+import { getBestsellers } from '../../data/productsData';
 
 const BestsellersSection = () => {
   const scrollContainerRef = useRef(null);
@@ -13,16 +14,7 @@ const BestsellersSection = () => {
     }
   };
 
-  const products = [
-    { id: 8, name: 'Plastic Modular Drawer', description: 'Set of 6 elegant glasses', originalPrice: '₹1,999', price: '₹999', discount: '-50%', image: 'https://m.media-amazon.com/images/I/513G67HTG9L.jpg', amazonLink: '#' },
-    { id: 2, name: 'Plastic Modular Drawer Storage', description: 'Eco-friendly borosilicate glass', originalPrice: '₹1,999', price: '₹899', discount: '-55%', image: 'https://m.media-amazon.com/images/I/713PnYt0aEL._SX679_.jpg', amazonLink: '#' },
-    { id: 3, name: 'Multipurpose Modular Drawer', description: 'Sustainable kitchen essential', originalPrice: '₹1,999', price: '₹1,199', discount: '-31%', image: 'https://m.media-amazon.com/images/I/71G94w0sIgL._SX679_.jpg', amazonLink: '#' },
-    { id: 1, name: 'Memory Foam Pillow', description: 'Handcrafted artisan design', originalPrice: '₹1,999', price: '₹529', discount: '-71%', image: 'https://m.media-amazon.com/images/I/61PdLfoIlHL._SX300_SY300_QL70_FMwebp_.jpg', amazonLink: '#' },
-    { id: 5, name: 'Modern Tea Kettle', description: 'Elegant design with whistle', originalPrice: '₹2,799', price: '₹2,299', discount: '-15%', image: 'https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=400&h=400&fit=crop', amazonLink: '#' },
-    { id: 4, name: 'Stainless Steel Cookware', description: 'Premium 5-piece set', price: '₹8,999', image: 'https://images.unsplash.com/photo-1556909172-54557c7e4fb7?w=400&h=400&fit=crop', amazonLink: '#' },
-    { id: 6, name: 'Minimalist Dinnerware Set', description: '16-piece modern collection', price: '₹12,499', image: 'https://images.unsplash.com/photo-1610701596007-11502861dcfa?w=400&h=400&fit=crop', amazonLink: '#' },
-    { id: 7, name: 'Wooden Utensil Holder', description: 'Natural bamboo organizer', originalPrice: '₹1,499', price: '₹1,199', discount: '-20%', image: 'https://images.unsplash.com/photo-1556911220-bff31c812dba?w=400&h=400&fit=crop', amazonLink: '#' },
-  ];
+  const products = getBestsellers();
 
   return (
     <section id="products" className="py-8 sm:py-12 md:py-16 bg-white">

@@ -4,6 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 import Breadcrumb from '../../components/Breadcrumb';
+import { getProductById } from '../../data/productsData';
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -14,20 +15,32 @@ const ProductDetail = () => {
   const [selectedImage, setSelectedImage] = useState(0);
   const [activeTab, setActiveTab] = useState('description');
 
-  // Mock product data - in real app, this would come from API based on id
+  // Get product data from central data file
+  const productData = getProductById(id);
+  
+  // If product not found, redirect to products page
+  useEffect(() => {
+    if (!productData) {
+      navigate('/products');
+    }
+  }, [productData, navigate]);
+
+  // Default product structure with data from central file
   const product = {
     id: id,
-    name: 'Memory Foam Pillow',
-    price: '₹529',
-    originalPrice: '₹1,999',
-    discount: '-38%',
-    image: 'https://m.media-amazon.com/images/I/61PdLfoIlHL._SX300_SY300_QL70_FMwebp_.jpg',
+    name: productData?.name || 'Memory Foam Pillow',
+    price: productData?.price || '₹529',
+    originalPrice: productData?.originalPrice || '₹1,999',
+    discount: productData?.discount || '-71%',
+    image: productData?.image || 'https://m.media-amazon.com/images/I/61PdLfoIlHL._SX300_SY300_QL70_FMwebp_.jpg',
     image2: 'https://m.media-amazon.com/images/I/51sf0ElwymL.jpg',
     image3: 'https://m.media-amazon.com/images/I/618FLhHeKjL.jpg',
     image4: 'https://m.media-amazon.com/images/I/514QgiMSOoL.jpg',
     image5: 'https://m.media-amazon.com/images/I/615m-hR3E1L.jpg',
-
-    description: 'Regular fit, round neckline, short sleeves. Made of extra long staple pima cotton. This premium quality product ensures durability and comfort for everyday use.',
+    description: productData?.description || 'Regular fit, round neckline, short sleeves. Made of extra long staple pima cotton. This premium quality product ensures durability and comfort for everyday use.',
+    category: productData?.category || 'Home Decor',
+    rating: productData?.rating || 4.8,
+    reviews: productData?.reviews || 256,
   };
 
   // Mock additional images for demo
