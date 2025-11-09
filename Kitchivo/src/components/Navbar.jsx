@@ -176,19 +176,19 @@ const Navbar = () => {
                 Home
               </button>
 
-              <a
-                href="#new-products"
+              <Link
+                to="/new-products"
                 className="text-gray-800 hover:text-lima-600 transition-colors duration-300 font-medium"
               >
-                New Product
-              </a>
+                New Products
+              </Link>
 
-              <a
-                href="#all-products"
+              <Link
+                to="/products"
                 className="text-gray-800 hover:text-lima-600 transition-colors duration-300 font-medium"
               >
-                All Product
-              </a>
+                All Products
+              </Link>
 
               <div className="relative">
                 <button
@@ -517,19 +517,21 @@ const Navbar = () => {
             Home
           </button>
 
-          <a
-            href="#new-products"
+          <Link
+            to="/new-products"
+            onClick={() => setMobileMenuOpen(false)}
             className="block px-3 py-2.5 text-gray-800 hover:text-lima-600 active:text-lima-700 hover:bg-gray-50 active:bg-gray-100 rounded-md font-medium text-sm sm:text-base"
           >
-            New Product
-          </a>
+            New Products
+          </Link>
 
-          <a
-            href="#all-products"
+          <Link
+            to="/products"
+            onClick={() => setMobileMenuOpen(false)}
             className="block px-3 py-2.5 text-gray-800 hover:text-lima-600 active:text-lima-700 hover:bg-gray-50 active:bg-gray-100 rounded-md font-medium text-sm sm:text-base"
           >
-            All Product
-          </a>
+            All Products
+          </Link>
 
           {/* Collections Dropdown */}
           <div>

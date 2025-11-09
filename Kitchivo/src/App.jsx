@@ -10,11 +10,17 @@ import Cart from './Pages/Cart/Cart';
 import CategoryProducts from './Pages/CategoryProducts/CategoryProducts';
 import About from './Pages/About/About';
 import Contact from './Pages/Contact/Contact';
+import Products from './Pages/Products/Products';
+import NewProducts from './Pages/NewProducts/NewProducts';
+import PrivacyPolicy from './Pages/PrivacyPolicy/PrivacyPolicy';
+import TermsOfService from './Pages/TermsOfService/TermsOfService';
 
 function App() {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
+      <Route path="/products" element={<Products />} />
+      <Route path="/new-products" element={<NewProducts />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/verify-otp" element={<VerifyOTP />} />
@@ -25,6 +31,8 @@ function App() {
       <Route path="/contact" element={<Contact />} />
       <Route path="/category/:categoryName" element={<CategoryProducts />} />
       <Route path="/product/:id" element={<ProductDetail />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+        <Route path="/terms-of-service" element={<TermsOfService />} />
     </Routes>
   );
 }

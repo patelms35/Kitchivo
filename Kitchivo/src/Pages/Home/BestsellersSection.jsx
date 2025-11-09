@@ -1,4 +1,5 @@
 import React, { useRef } from 'react';
+import { Link } from 'react-router-dom';
 import ProductCard from '../../components/ProductCard';
 
 const BestsellersSection = () => {
@@ -30,12 +31,12 @@ const BestsellersSection = () => {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-3 sm:mb-4">
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-[#1E1E1E]">Our Bestsellers</h2>
             {/* Explore more button beside the heading */}
-            <a
-              href="/products"
+            <Link
+              to="/products"
               className="inline-flex items-center justify-center px-4 py-2 bg-lima-600 text-white text-sm sm:text-base rounded-md shadow hover:bg-lima-700 active:bg-lima-800 transition-all duration-200 w-full sm:w-auto"
             >
               Explore more
-            </a>
+            </Link>
           </div>
 
           <p className="text-left text-gray-600 text-sm sm:text-base md:text-lg">Discover our most-loved kitchen essentials—crafted for style, durability, and performance. <br className="hidden sm:block" /> Perfect for every modern kitchen and passionate home chef.</p>
