@@ -1,24 +1,28 @@
 import React from 'react';
+import amazonLogo from '../../assets/amazon.svg';
+import flipkartLogo from '../../assets/flipkart.svg';
+import myntraLogo from '../../assets/myntra.svg';
 
 const FindUsOnSection = () => {
   const platforms = [
-    
     {
       name: 'Amazon',
-      logo: 'https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg',
-      link: '#'
+      logo: amazonLogo,
+      link: '#',
+      tagline: 'Prime shipping and exclusive kitchen deals'
     },
     {
       name: 'Myntra',
-      logo: 'https://upload.wikimedia.org/wikipedia/commons/f/f0/65c5da9f878952603e370d03_Myntra-Logo_1.svg',
-      link: '#'
+      logo: myntraLogo,
+      link: '#',
+      tagline: 'Curated cookware for trendsetters'
     },
     {
       name: 'Flipkart',
-      logo: 'https://cdn.worldvectorlogo.com/logos/flipkart.svg',
-      link: '#'
-    },
-   
+      logo: flipkartLogo,
+      link: '#',
+      tagline: 'Festive offers on smart appliances'
+    }
   ];
 
   return (
@@ -33,26 +37,46 @@ const FindUsOnSection = () => {
         </div>
 
         <div className="flex justify-center items-center">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 md:gap-8 max-w-4xl w-full">
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-3 sm:gap-6 md:gap-8 max-w-5xl w-full">
             {platforms.map((platform, index) => (
               <a
                 key={index}
                 href={platform.link}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="bg-white border-2 border-gray-200 rounded-lg sm:rounded-xl p-6 sm:p-8 flex items-center justify-center hover:border-lima-500 hover:shadow-xl active:shadow-lg transition-all duration-300 transform hover:-translate-y-1 active:-translate-y-0 group w-full"
-            >
-              <img 
-                src={platform.logo} 
-                alt={platform.name}
-                className="w-full h-10 sm:h-12 object-contain grayscale group-hover:grayscale-0 transition-all duration-300"
-                onError={(e) => {
-                  e.target.onerror = null;
-                  e.target.src = 'https://via.placeholder.com/200x80?text=' + platform.name;
-                }}
-              />
-            </a>
-          ))}
+                className="group relative flex h-full w-full flex-col overflow-hidden rounded-2xl border border-gray-100 bg-linear-to-br from-neutral-50 via-white to-white p-7 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+              >
+                <div
+                  className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                  aria-hidden="true"
+                >
+                  <div className="absolute -inset-px rounded-3xl bg-linear-to-br from-lima-200/40 via-transparent to-transparent blur-2xl" />
+                </div>
+                <div className="relative flex flex-1 flex-col items-center gap-6 text-center">
+                  <div className="rounded-full bg-white/90 p-4 shadow-sm ring-1 ring-inset ring-gray-100 transition-all duration-300 group-hover:ring-lima-400">
+                    <img
+                      src={platform.logo}
+                      alt={platform.name}
+                      className="h-12 w-32 object-contain grayscale transition duration-300 group-hover:grayscale-0"
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = 'https://via.placeholder.com/200x80?text=' + platform.name;
+                      }}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <h3 className="text-lg font-semibold text-[#1E1E1E]">{platform.name}</h3>
+                    {platform.tagline && (
+                      <p className="text-sm text-gray-500">{platform.tagline}</p>
+                    )}
+                  </div>
+                  <span className="inline-flex items-center gap-2 text-sm font-semibold text-lima-600 transition-colors duration-300 group-hover:text-lima-700">
+                    Shop now
+                    <span className="text-base transition-transform duration-300 group-hover:translate-x-1">&gt;</span>
+                  </span>
+                </div>
+              </a>
+            ))}
           </div>
         </div>
       </div>
