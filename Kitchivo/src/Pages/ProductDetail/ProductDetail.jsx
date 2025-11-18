@@ -257,9 +257,6 @@ const ProductDetail = () => {
 
               {/* Action Buttons */}
               <div className="space-y-3 pt-2">
-                <button className="w-full bg-gray-900 text-white py-3 px-6 rounded font-semibold text-base hover:bg-lima-600 transition-all duration-300">
-                  Add to cart
-                </button>
                 <button className="w-full bg-orange-500 text-white py-3 px-6 rounded font-semibold text-base hover:bg-orange-600 transition-all duration-300">
                   Buy on Amazon
                 </button>

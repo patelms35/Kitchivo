@@ -142,7 +142,7 @@ const Wishlist = () => {
               Your Wishlist is Empty
             </h2>
             <p className="text-sm sm:text-base text-gray-600 mb-8 text-center max-w-md">
-              Save items you love to your wishlist. Review them anytime and easily move them to your cart.
+              Save items you love to your wishlist. Review them anytime and decide when you're ready to purchase.
             </p>
             <Link
               to="/"
