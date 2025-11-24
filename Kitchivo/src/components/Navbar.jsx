@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 import Logo from "../assets/Logo_Full.png";
 import { allProducts } from '../data/productsData';
@@ -51,6 +51,17 @@ const Navbar = () => {
 
   // If mobile menu or search is open, keep navbar visible
   const isNavVisible = showNavbar || mobileMenuOpen || searchOpen;
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const handleHomeClick = () => {
+    if (location.pathname !== "/") {
+      setMobileMenuOpen(false);
+      navigate("/");
+      return;
+    }
+    scrollToSection("home");
+  };
 
   // Get unique categories from allProducts
   const categories = Array.from(new Set(allProducts.map(p => p.category)));
@@ -175,7 +186,7 @@ const Navbar = () => {
             {/* Desktop Navigation */}
             <div className="hidden lg:flex items-center space-x-8">
               <button
-                onClick={() => scrollToSection("home")}
+                onClick={handleHomeClick}
                 className="text-gray-800 hover:text-lima-600 transition-colors duration-300 font-medium"
               >
                 Home
@@ -352,7 +363,7 @@ const Navbar = () => {
       >
         <div className="px-4 pt-2 pb-3 space-y-1">
           <button
-            onClick={() => scrollToSection("home")}
+            onClick={handleHomeClick}
             className="block w-full text-left px-3 py-2.5 text-gray-800 hover:text-lima-600 active:text-lima-700 hover:bg-gray-50 active:bg-gray-100 rounded-md font-medium text-sm sm:text-base"
           >
             Home
