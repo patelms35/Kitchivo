@@ -4,9 +4,289 @@ import { useDispatch, useSelector } from 'react-redux';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 import Breadcrumb from '../../components/Breadcrumb';
-import { fetchProductDetails, createWishlist } from '../../redux/slices/CommanSlice';
+import { fetchProductDetails, createWishlist, submitReview } from '../../redux/slices/CommanSlice';
 import { toast } from 'react-toastify';
 import Swal from 'sweetalert2';
+
+// const formatReviewDate = (isoString) => {
+//   if (!isoString) return '';
+//   const date = new Date(isoString);
+//   if (Number.isNaN(date.getTime())) return '';
+
+//   const now = new Date();
+//   const diffMs = now - date;
+//   const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+//   if (diffDays === 0) return 'Today';
+//   if (diffDays === 1) return '1 day ago';
+//   if (diffDays < 7) return `${diffDays} days ago`;
+
+//   return date.toLocaleDateString('en-GB', {
+//     day: '2-digit',
+//     month: 'short',
+//     year: 'numeric',
+//   });
+// };
+
+const formatReviewDate = (isoString) => {
+  if (!isoString) return '';
+  const date = new Date(isoString);
+  if (Number.isNaN(date.getTime())) return '';
+
+  const now = new Date();
+  const msPerDay = 24 * 60 * 60 * 1000;
+
+  // Compute difference in calendar days (local time) by using UTC midnight for each local date.
+  // This avoids problems where a small timezone/time-of-day difference makes the diff negative.
+  const utcNowMidnight = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
+  const utcDateMidnight = Date.UTC(date.getFullYear(), date.getMonth(), date.getDate());
+
+  const diffDays = Math.floor((utcNowMidnight - utcDateMidnight) / msPerDay);
+
+  if (diffDays === 0) return 'Today';
+  if (diffDays === 1) return '1 day ago';
+  if (diffDays > 1 && diffDays < 7) return `${diffDays} days ago`;
+  if (diffDays < 0) {
+    // In case the timestamp is in the future (unlikely for reviews) — show a safe label.
+    return 'Today';
+  }
+
+  return date.toLocaleDateString('en-GB', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  });
+};
+
+const StarRating = ({ rating = 0, className = '' }) => {
+  const safeRating = Number.isFinite(rating) ? rating : 0;
+  const rounded = Math.round(safeRating);
+
+  return (
+    <div className={`flex items-center ${className}`} aria-label={`${safeRating.toFixed(1)} out of 5 stars`}>
+      {[1, 2, 3, 4, 5].map((star) => (
+        <svg
+          key={star}
+          className={`w-4 h-4 sm:w-5 sm:h-5 ${star <= rounded ? 'text-yellow-400' : 'text-gray-300'}`}
+          fill="currentColor"
+          viewBox="0 0 20 20"
+        >
+          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.176 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+        </svg>
+      ))}
+    </div>
+  );
+};
+
+const StarRatingInput = ({ value = 0, onChange, className = '' }) => {
+  const handleClick = (rating) => {
+    if (typeof onChange === 'function') {
+      onChange(rating);
+    }
+  };
+
+  return (
+    <div className={`flex items-center gap-1 ${className}`}>
+      {[1, 2, 3, 4, 5].map((star) => (
+        <button
+          key={star}
+          type="button"
+          onClick={() => handleClick(star)}
+          className="focus:outline-none"
+        >
+          <svg
+            className={`w-6 h-6 ${star <= value ? 'text-yellow-400' : 'text-gray-300'}`}
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.176 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+          </svg>
+        </button>
+      ))}
+    </div>
+  );
+};
+
+const ReviewModal = ({
+  isOpen,
+  onClose,
+  rating,
+  onRatingChange,
+  reviewText,
+  onReviewTextChange,
+  onSubmit,
+  submitting,
+}) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/40 px-4 sm:px-0">
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
+        <div className="flex items-center justify-between px-4 py-3 border-b">
+          <h3 className="text-base sm:text-lg font-semibold text-gray-900">Write a review</h3>
+          <button
+            type="button"
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600"
+          >
+            <span className="sr-only">Close</span>
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <form
+          onSubmit={onSubmit}
+          className="px-4 pt-4 pb-5 space-y-4"
+        >
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Rating
+            </label>
+            <StarRatingInput value={rating} onChange={onRatingChange} />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="review-textarea">
+              Review
+            </label>
+            <textarea
+              id="review-textarea"
+              rows={4}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-lima-500 focus:border-lima-500 resize-none"
+              placeholder="Share your honest experience with this product..."
+              value={reviewText}
+              onChange={(e) => onReviewTextChange(e.target.value)}
+            />
+          </div>
+
+          <div className="flex items-center justify-end gap-3 pt-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="text-sm text-gray-600 hover:text-gray-800"
+              disabled={submitting}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="inline-flex items-center justify-center px-4 py-2 rounded-md text-sm font-semibold text-white bg-lima-600 hover:bg-lima-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-lima-500 disabled:opacity-60 disabled:cursor-not-allowed"
+              disabled={submitting}
+            >
+              {submitting ? 'Submitting...' : 'Submit review'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+const RatingStats = ({ ratingStats, reviews }) => {
+  const totalReviews =
+    ratingStats?.total_reviews ?? (Array.isArray(reviews) ? reviews.length : 0);
+
+  const averageRating =
+    ratingStats?.average_rating ??
+    (totalReviews
+      ? reviews.reduce((sum, r) => sum + (Number(r.rating) || 0), 0) / totalReviews
+      : 0);
+
+  const distribution = ratingStats?.rating_distribution || {};
+
+  const getCount = (star) => distribution[`${star}_star`] ?? 0;
+  const getPercentage = (count) => (totalReviews ? Math.round((count / totalReviews) * 100) : 0);
+
+  if (!totalReviews) {
+    return (
+      <div className="rounded-lg border border-gray-100 bg-gray-50 p-4 sm:p-5">
+        <p className="text-sm text-gray-600">
+          No reviews yet. Be the first to review this product.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="flex flex-col items-start justify-center">
+        <div className="flex items-center gap-3">
+          <span className="text-4xl font-bold text-gray-900">
+            {Number(averageRating || 0).toFixed(1)}
+          </span>
+          <StarRating rating={averageRating} />
+        </div>
+        <p className="mt-2 text-sm text-gray-600">
+          Based on {totalReviews} review{totalReviews !== 1 ? 's' : ''}
+        </p>
+      </div>
+
+      <div className="md:col-span-2 space-y-2">
+        {[5, 4, 3, 2, 1].map((star) => {
+          const count = getCount(star);
+          const percentage = getPercentage(count);
+
+          return (
+            <div key={star} className="flex items-center gap-3">
+              <span className="w-10 text-xs sm:text-sm text-gray-700">{star}★</span>
+              <div className="flex-1 h-2 rounded-full bg-gray-100 overflow-hidden">
+                <div
+                  className="h-2 rounded-full bg-yellow-400"
+                  style={{ width: `${percentage}%` }}
+                />
+              </div>
+              <span className="w-10 text-xs sm:text-sm text-gray-500 text-right">{count}</span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
+const ReviewItem = ({ review }) => {
+  const name = review.customer_name || 'Anonymous';
+  const rating = Number(review.rating) || 0;
+  const comment =
+    review.review && review.review.trim() ? review.review : 'No comment provided.';
+  const dateLabel = formatReviewDate(review.created_at);
+
+  return (
+    <div className="border border-gray-100 rounded-lg p-4 sm:p-5 bg-white">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
+        <div className="flex items-center gap-2">
+          <StarRating rating={rating} />
+          <span className="text-sm font-medium text-gray-800">{name}</span>
+        </div>
+        {dateLabel && <span className="text-xs text-gray-400">{dateLabel}</span>}
+      </div>
+      <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{comment}</p>
+    </div>
+  );
+};
+
+const ReviewsList = ({ reviews }) => {
+  if (!reviews || reviews.length === 0) {
+    return (
+      <div className="rounded-lg border border-dashed border-gray-200 p-4 sm:p-6 text-center">
+        <p className="text-sm text-gray-600">No reviews yet.</p>
+        <p className="mt-1 text-xs text-gray-400">
+          Once customers review this product, they will appear here.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      {reviews.map((review) => (
+        <ReviewItem key={review.id} review={review} />
+      ))}
+    </div>
+  );
+};
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -18,9 +298,15 @@ const ProductDetail = () => {
 
   const [selectedImageUrl, setSelectedImageUrl] = useState(null);
   const [selectedThumbIndex, setSelectedThumbIndex] = useState(0);
+  const [displayedImages, setDisplayedImages] = useState([]);
   const [selectedSizeId, setSelectedSizeId] = useState(null);
   const [selectedColorId, setSelectedColorId] = useState(null);
   const [activeTab, setActiveTab] = useState('description');
+  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+  const [reviewRating, setReviewRating] = useState(0);
+  const [reviewText, setReviewText] = useState('');
+  const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   // Fetch product details from API
   useEffect(() => {
@@ -29,62 +315,110 @@ const ProductDetail = () => {
     window.scrollTo(0, 0);
   }, [dispatch, id]);
 
-  // Initialize selections when product loads
+  // Reset selections when product changes
   useEffect(() => {
     if (!product) return;
+    setSelectedSizeId(null);
+    setSelectedColorId(null);
+  }, [product?.id]);
 
-    if (product.available_sizes?.length && !selectedSizeId) {
-      setSelectedSizeId(product.available_sizes[0].id);
+  useEffect(() => {
+    try {
+      const token = localStorage.getItem('token');
+      setIsLoggedIn(!!token);
+    } catch (e) {
+      setIsLoggedIn(false);
     }
-    if (product.available_colors?.length && !selectedColorId) {
-      setSelectedColorId(product.available_colors[0].id);
-    }
+  }, []);
 
-    if (!selectedImageUrl) {
-      const fromCommon = product.common_images?.[0]?.url;
-      const fromVariant =
-        product.variants?.[0]?.images?.find((img) => img.is_primary)?.url ||
-        product.variants?.[0]?.images?.[0]?.url;
-      const fallback = product.featured_image || fromCommon || fromVariant || null;
+  // All images: common images + all variant images (default view)
+  const allImages = useMemo(() => {
+    if (!product) return [];
+    const commonImages = product.common_images || [];
+    const variantImages =
+      product.variants?.flatMap((v) => v.images || []) || [];
+    return [...commonImages, ...variantImages];
+  }, [product]);
 
-      if (fallback) {
-        setSelectedImageUrl(fallback);
-        setSelectedThumbIndex(0);
-      }
-    }
-  }, [product, selectedSizeId, selectedColorId, selectedImageUrl]);
-
-  // Active variant from selected size + color
+  // Active variant from selected size and/or color
   const activeVariant = useMemo(() => {
-    if (!product?.variants || !selectedSizeId || !selectedColorId) return null;
+    if (!product?.variants) return null;
+
+    const hasSize = !!selectedSizeId;
+    const hasColor = !!selectedColorId;
+
+    if (!hasSize && !hasColor) return null;
+
+    const selectedSizeKey = selectedSizeId != null ? String(selectedSizeId) : null;
+    const selectedColorKey = selectedColorId != null ? String(selectedColorId) : null;
+
     return (
-      product.variants.find(
-        (v) => v.size?.id === selectedSizeId && v.color?.id === selectedColorId
-      ) || null
+      product.variants.find((v) => {
+        const vSizeId =
+          v.size?.id != null
+            ? String(v.size.id)
+            : v.size_id != null
+            ? String(v.size_id)
+            : null;
+        const vColorId =
+          v.color?.id != null
+            ? String(v.color.id)
+            : v.color_id != null
+            ? String(v.color_id)
+            : null;
+
+        const sizeMatch = hasSize ? vSizeId === selectedSizeKey : true;
+        const colorMatch = hasColor ? vColorId === selectedColorKey : true;
+        return sizeMatch && colorMatch;
+      }) || null
     );
   }, [product, selectedSizeId, selectedColorId]);
 
-  // When variant changes, prefer its primary image
+  // Update displayed images when variant or product changes
   useEffect(() => {
-    if (!activeVariant) return;
-    const primary =
-      activeVariant.images?.find((img) => img.is_primary) ||
-      activeVariant.images?.[0];
+    if (!product) return;
 
-    if (primary?.url) {
-      setSelectedImageUrl(primary.url);
-      setSelectedThumbIndex(-1);
-    }
-  }, [activeVariant]);
+    if (activeVariant && activeVariant.images?.length) {
+      const variantImages = activeVariant.images || [];
+      // When a variant is selected, show only that variant's images
+      setDisplayedImages(allImages);
 
-  const thumbnails = useMemo(() => {
-    if (!product) return [];
-    if (product.common_images?.length) return product.common_images;
-    if (product.featured_image) {
-      return [{ id: 'featured', url: product.featured_image }];
+      const primary =
+        variantImages.find((img) => img.is_primary) || variantImages[0];
+
+      if (primary?.url) {
+        setSelectedImageUrl(primary.url);
+        setSelectedThumbIndex(0);
+      }
+    } else {
+      // No active variant: show all images (common + all variant images)
+      setDisplayedImages(allImages);
+
+      if (!selectedImageUrl) {
+        const fallback =
+          product.featured_image || allImages[0]?.url || null;
+
+        if (fallback) {
+          setSelectedImageUrl(fallback);
+          setSelectedThumbIndex(0);
+        }
+      } else {
+        const existsInAll = allImages.some(
+          (img) => img.url === selectedImageUrl
+        );
+
+        if (!existsInAll) {
+          const fallback =
+            product.featured_image || allImages[0]?.url || null;
+
+          if (fallback) {
+            setSelectedImageUrl(fallback);
+            setSelectedThumbIndex(0);
+          }
+        }
+      }
     }
-    return [];
-  }, [product]);
+  }, [product, activeVariant, allImages]);
 
   const handleThumbnailClick = (url, index) => {
     setSelectedImageUrl(url);
@@ -98,6 +432,67 @@ const ProductDetail = () => {
     ) || 0;
   const inStock = totalStock > 0;
   const isWishlisted = !!product?.is_wishlisted;
+
+  const handleOpenReviewModal = () => {
+    if (!isLoggedIn) {
+      Swal.fire({
+        title: 'Login required',
+        text: 'Please login first to write a review.',
+        icon: 'warning',
+        confirmButtonText: 'Login',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          navigate('/login');
+        }
+      });
+      return;
+    }
+    setReviewRating(0);
+    setReviewText('');
+    setIsReviewModalOpen(true);
+  };
+
+  const handleCloseReviewModal = () => {
+    if (isSubmittingReview) return;
+    setIsReviewModalOpen(false);
+  };
+
+  const handleSubmitReview = async (e) => {
+    e.preventDefault();
+    if (!product) return;
+
+    if (!reviewRating || reviewRating < 1 || reviewRating > 5) {
+      toast.error('Please select a rating between 1 and 5 stars.');
+      return;
+    }
+
+    setIsSubmittingReview(true);
+    try {
+      const resultAction = await dispatch(
+        submitReview({
+          product_id: product.id,
+          rating: reviewRating,
+          review_text: reviewText,
+        })
+      );
+
+      if (resultAction?.payload?.status === 1) {
+        toast.success(resultAction?.payload?.message || 'Review submitted successfully');
+        setIsReviewModalOpen(false);
+        setReviewRating(0);
+        setReviewText('');
+        dispatch(fetchProductDetails({ product_id: product.id }));
+      } else {
+        toast.error(
+          resultAction?.payload?.message || 'Failed to submit review'
+        );
+      }
+    } catch (error) {
+      toast.error('Failed to submit review');
+    } finally {
+      setIsSubmittingReview(false);
+    }
+  };
 
   const handleWishlistClick = async () => {
     if (!product) return;
@@ -194,6 +589,17 @@ const ProductDetail = () => {
     product.sale_price === '0.00' ||
     product.sale_price === 'null';
 
+  const reviews = product.reviews || [];
+  const ratingStats = product.rating_stats || null;
+  const headerTotalReviews =
+    ratingStats?.total_reviews ?? (Array.isArray(reviews) ? reviews.length : 0);
+  const headerAverageRating =
+    ratingStats?.average_rating ??
+    (headerTotalReviews
+      ? reviews.reduce((sum, r) => sum + (Number(r.rating) || 0), 0) /
+        headerTotalReviews
+      : 0);
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
@@ -214,7 +620,7 @@ const ProductDetail = () => {
             <div className="flex flex-col-reverse lg:flex-row gap-4">
               {/* Thumbnail Gallery */}
               <div className="flex flex-row lg:flex-col gap-2 lg:gap-3 overflow-x-auto lg:overflow-visible">
-                {thumbnails.map((img, index) => (
+                {displayedImages.map((img, index) => (
                   <button
                     key={img.id || index}
                     onClick={() => handleThumbnailClick(img.url, index)}
@@ -263,23 +669,24 @@ const ProductDetail = () => {
                 </h1>
 
                 {/* Reviews placeholder */}
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="flex items-center gap-1">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <svg
-                        key={star}
-                        className={`w-4 h-4 ${
-                          star <= 4 ? 'text-yellow-400' : 'text-gray-300'
-                        }`}
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.176 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                      </svg>
-                    ))}
+                {headerTotalReviews ? (
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="flex items-center gap-2">
+                      <span className="text-2xl font-semibold text-gray-900">
+                        {Number(headerAverageRating || 0).toFixed(1)}
+                      </span>
+                      <StarRating rating={headerAverageRating} />
+                    </div>
+                    <span className="text-sm text-gray-600">
+                      {headerTotalReviews} review{headerTotalReviews !== 1 ? 's' : ''}
+                    </span>
                   </div>
-                  <span className="text-sm text-gray-600">4.0 (120 reviews)</span>
-                </div>
+                ) : (
+                  <div className="flex items-center gap-2 mb-4">
+                    <StarRating rating={0} />
+                    <span className="text-sm text-gray-500">No reviews yet</span>
+                  </div>
+                )}
 
                 {/* Product Description */}
                 <p className="text-sm text-gray-600 leading-relaxed mb-3">
@@ -341,7 +748,6 @@ const ProductDetail = () => {
                   </div>
                 </div>
               )}
-
               {/* Variants: Colors */}
               {product.available_colors?.length > 0 && (
                 <div>
@@ -442,7 +848,7 @@ const ProductDetail = () => {
               >
                 Description
               </button>
-              <button
+              {/* <button
                 onClick={() => setActiveTab('details')}
                 className={`py-4 px-2 border-b-2 font-medium transition-colors ${activeTab === 'details'
                   ? 'border-gray-900 text-gray-900'
@@ -450,7 +856,7 @@ const ProductDetail = () => {
                   }`}
               >
                 Product Details
-              </button>
+              </button> */}
               <button
                 onClick={() => setActiveTab('reviews')}
                 className={`py-4 px-2 border-b-2 font-medium transition-colors ${activeTab === 'reviews'
@@ -474,7 +880,7 @@ const ProductDetail = () => {
                   </p>
                 </div>
               )}
-              {activeTab === 'details' && (
+              {/* {activeTab === 'details' && (
                 <div>
                   <h3 className="text-lg font-semibold mb-4">Product Details</h3>
                   <div className="space-y-2 text-sm">
@@ -500,34 +906,23 @@ const ProductDetail = () => {
                     </div>
                   </div>
                 </div>
-              )}
+              )} */}
               {activeTab === 'reviews' && (
-                <div>
-                  <h3 className="text-lg font-semibold mb-4">Customer Reviews</h3>
-                  <div className="space-y-6">
-                    {/* Review 1 */}
-                    <div className="border-b pb-6">
-                      <div className="flex items-center gap-2 mb-2">
-                        <div className="flex">
-                          {[...Array(5)].map((_, i) => (
-                            <svg key={i} className="w-4 h-4 text-yellow-400 fill-current" viewBox="0 0 20 20">
-                              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.966a1 1 0 00.95.69h4.175c.969 0 1.371 1.24.588 1.81l-3.38 2.455a1 1 0 00-.364 1.118l1.287 3.966c.3.921-.755 1.688-1.54 1.118l-3.38-2.455a1 1 0 00-1.175 0l-3.38 2.455c-.784.57-1.838-.197-1.539-1.118l1.287-3.966a1 1 0 00-.364-1.118L2.174 9.393c-.783-.57-.38-1.81.588-1.81h4.175a1 1 0 00.95-.69l1.286-3.966z" />
-                            </svg>
-                          ))}
-                        </div>
-                        <span className="text-sm font-medium text-gray-700">John Doe</span>
-                        <span className="text-sm text-gray-400">- 2 days ago</span>
-                      </div>
-                      <p className="text-gray-600 text-sm leading-relaxed">
-                        Excellent product! The quality is outstanding and it exceeded my expectations.
-                        Highly recommend to anyone looking for a reliable and durable product.
-                      </p>
-                    </div>
-                    {/* Add review button */}
-                    <button className="text-lima-600 hover:text-lima-700 font-medium text-sm">
-                      Write a review
-                    </button>
+                <div className="space-y-8">
+                  <div className="flex items-center justify-between gap-2">
+                    <h3 className="text-lg font-semibold">Customer Reviews</h3>
+                    {(isLoggedIn && !product?.is_reviewed) && (
+                      <button
+                        type="button"
+                        onClick={handleOpenReviewModal}
+                        className="text-lg font-semibold text-gray-600 hover:text-lima-600"
+                      >
+                        <h3>Write a review</h3>
+                      </button>
+                    )}
                   </div>
+                  <RatingStats ratingStats={ratingStats} reviews={reviews} />
+                  <ReviewsList reviews={reviews} />
                 </div>
               )}
             </div>
@@ -536,6 +931,17 @@ const ProductDetail = () => {
       </main>
 
       <Footer />
+
+      <ReviewModal
+        isOpen={isReviewModalOpen}
+        onClose={handleCloseReviewModal}
+        rating={reviewRating}
+        onRatingChange={setReviewRating}
+        reviewText={reviewText}
+        onReviewTextChange={setReviewText}
+        onSubmit={handleSubmitReview}
+        submitting={isSubmittingReview}
+      />
     </div>
   );
 };

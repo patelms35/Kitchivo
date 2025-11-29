@@ -106,6 +106,32 @@ export const createWishlist = createAsyncThunk(
     }
 );
 
+export const submitReview = createAsyncThunk(
+    "auth/submitReview",
+    async (data, { rejectWithValue }) => {
+        try {
+            const res = await CommanServices.submitReview(data);
+            return res;
+        } catch (error) {
+            console.log(error);
+            return rejectWithValue(error?.response?.data || error.message);
+        }
+    }
+);
+
+export const searchProducts = createAsyncThunk(
+    "auth/searchProducts",
+    async (searchTerm, { rejectWithValue }) => {
+        try {
+            const res = await CommanServices.searchProducts(searchTerm);
+            return res;
+        } catch (error) {
+            console.log(error);
+            return rejectWithValue(error?.response?.data || error.message);
+        }
+    }
+);
+
 const initialState = {
     loading: false,
     error: false,
@@ -114,6 +140,9 @@ const initialState = {
     productDatails:null,
     pagination: null,
     wishlist:null,
+    searchResults: null,
+    searchLoading: false,
+
     categoryProducts: {
         category: null,
         products: [],
@@ -135,7 +164,11 @@ const initialState = {
 const CommanSlice = createSlice({
     name: "auth",
     initialState,
-    reducers: {},
+    reducers: {
+        clearSearchResults(state) {
+            state.searchResults = null;
+        },
+    },
     extraReducers(builder) {
         builder
             .addCase(getDashboard.pending, (state) => {
@@ -240,7 +273,31 @@ const CommanSlice = createSlice({
                 state.loading = false;
                 state.error = payload || true;
             });
+        builder
+            .addCase(searchProducts.pending, (state) => {
+                state.searchLoading = true;
+            })
+            .addCase(searchProducts.fulfilled, (state, { payload }) => {
+                state.searchLoading = false;
+                state.searchResults = payload || null;
+            })
+            .addCase(searchProducts.rejected, (state) => {
+                state.searchLoading = false;
+                state.searchResults = null;
+            });
+        builder
+            .addCase(submitReview.pending, (state) => {
+                state.error = false;
+            })
+            .addCase(submitReview.fulfilled, (state) => {
+                state.error = false;
+            })
+            .addCase(submitReview.rejected, (state, { payload }) => {
+                state.error = payload || true;
+            });
     },
 });
+
+export const { clearSearchResults } = CommanSlice.actions;
 
 export default CommanSlice.reducer;

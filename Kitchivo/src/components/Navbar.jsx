@@ -2,14 +2,17 @@ import React, { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
 import Logo from "../assets/Logo_Full.png";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { useAuth } from "../context/AuthContext";
+import Swal from "sweetalert2";
+import { searchProducts, clearSearchResults } from "../redux/slices/CommanSlice";
 
 const Navbar = () => {
 
   const token = localStorage.getItem("token");
+  const dispatch = useDispatch();
   const { user } = useSelector((state) => state.authStore);
-  const { dashboard } = useSelector((state) => state.commanStore);
+  const { dashboard, searchResults, searchLoading } = useSelector((state) => state.commanStore);
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [shopDropdown, setShopDropdown] = useState(false);
@@ -18,8 +21,11 @@ const Navbar = () => {
   const [collectionsDropdownOpen, setCollectionsDropdownOpen] = useState(false);
   const [blogDropdown, setBlogDropdown] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [showSearchDropdown, setShowSearchDropdown] = useState(false);
   const [showNavbar, setShowNavbar] = useState(true);
   const lastScrollY = useRef(0);
+  const searchBoxRef = useRef(null);
 
   const { logOut, user: authUser } = useAuth();
   const [userMenuOpen, setUserMenuOpen] = useState(false);
@@ -31,6 +37,39 @@ const Navbar = () => {
       setUserMenuOpen(false);
     }
   };
+
+  // Debounced search
+  useEffect(() => {
+    const trimmed = searchTerm.trim();
+
+    if (!trimmed) {
+      dispatch(clearSearchResults());
+      setShowSearchDropdown(false);
+      return;
+    }
+
+    setShowSearchDropdown(true);
+
+    const handler = setTimeout(() => {
+      dispatch(searchProducts(trimmed));
+    }, 300);
+
+    return () => clearTimeout(handler);
+  }, [searchTerm, dispatch]);
+
+  // Click outside to hide search dropdown
+  useEffect(() => {
+    if (!searchOpen) return;
+
+    const handleClickOutside = (event) => {
+      if (searchBoxRef.current && !searchBoxRef.current.contains(event.target)) {
+        setShowSearchDropdown(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [searchOpen]);
 
   // Smooth scroll function
   const scrollToSection = (id) => {
@@ -70,6 +109,31 @@ const Navbar = () => {
   const isNavVisible = showNavbar || mobileMenuOpen || searchOpen;
   const navigate = useNavigate();
   const location = useLocation();
+
+  const searchResultsData = searchResults?.data || [];
+
+  const handleWishlistClick = () => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      Swal.fire({
+        title: "Login required",
+        text: "Please login first to view your wishlist.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#66d210",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Login",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          navigate("/login");
+        }
+      });
+      return;
+    }
+
+    navigate("/wishlist");
+  };
 
   const handleHomeClick = () => {
     if (location.pathname !== "/") {
@@ -342,7 +406,11 @@ const Navbar = () => {
                   )}
                 </div>
 
-                <Link to="/wishlist" className="relative text-gray-800 hover:text-lima-600 active:text-lima-700 transition-colors">
+                <button
+                  type="button"
+                  onClick={handleWishlistClick}
+                  className="relative text-gray-800 hover:text-lima-600 active:text-lima-700 transition-colors"
+                >
                   <svg
                     className="w-5 h-5 sm:w-6 sm:h-6"
                     fill="none"
@@ -359,7 +427,7 @@ const Navbar = () => {
                   <span className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 bg-lima-600 text-white text-xs rounded-full w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center">
                     {user && user?.wishlist_items ? user?.wishlist_items : 0}
                   </span>
-                </Link>
+                </button>
 
                 <button
                   onClick={() => setSearchOpen(true)}
@@ -427,7 +495,11 @@ const Navbar = () => {
                   <span className="lg:hidden text-xs">Sign in</span>
                 </Link>
 
-                <Link to="/wishlist" className="relative text-gray-800 hover:text-lima-600 active:text-lima-700 transition-colors">
+                <button
+                  type="button"
+                  onClick={handleWishlistClick}
+                  className="relative text-gray-800 hover:text-lima-600 active:text-lima-700 transition-colors"
+                >
                   <svg
                     className="w-5 h-5 sm:w-6 sm:h-6"
                     fill="none"
@@ -444,7 +516,7 @@ const Navbar = () => {
                   <span className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 bg-lima-600 text-white text-xs rounded-full w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center">
                     0
                   </span>
-                </Link>
+                </button>
 
                 <button
                   onClick={() => setSearchOpen(true)}
@@ -587,7 +659,12 @@ const Navbar = () => {
                   Search Products
                 </h3>
                 <button
-                  onClick={() => setSearchOpen(false)}
+                  onClick={() => {
+                    setSearchOpen(false);
+                    setSearchTerm("");
+                    setShowSearchDropdown(false);
+                    dispatch(clearSearchResults());
+                  }}
                   className="text-gray-400 hover:text-gray-600 active:text-gray-700 transition-colors"
                 >
                   <svg
@@ -606,13 +683,20 @@ const Navbar = () => {
                 </button>
               </div>
 
-              {/* Search Input */}
+              {/* Search Input + Results */}
               <div className="px-4 sm:px-6 py-4 sm:py-6">
-                <div className="relative">
+                <div className="relative" ref={searchBoxRef}>
                   <input
                     type="text"
                     placeholder="Search for products..."
                     autoFocus
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    onFocus={() => {
+                      if (searchTerm.trim()) {
+                        setShowSearchDropdown(true);
+                      }
+                    }}
                     className="w-full px-4 sm:px-6 py-3 sm:py-4 pr-10 sm:pr-12 text-sm sm:text-base md:text-lg border-2 border-gray-200 rounded-full focus:outline-none focus:border-lima-500 transition-colors"
                   />
                   <button className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-lima-600 transition-colors">
@@ -630,6 +714,58 @@ const Navbar = () => {
                       />
                     </svg>
                   </button>
+
+                  {/* Search Results Dropdown */}
+                  {showSearchDropdown && searchTerm.trim() && (
+                    <div className="absolute left-0 right-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-lg max-h-80 overflow-y-auto z-20">
+                      {searchLoading ? (
+                        <div className="px-4 py-3 text-sm text-gray-500">Searching...</div>
+                      ) : searchResultsData.length > 0 ? (
+                        <ul className="divide-y divide-gray-100">
+                          {searchResultsData.map((product) => (
+                            <li
+                              key={product.id}
+                              className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 cursor-pointer"
+                              onMouseDown={(e) => e.preventDefault()}
+                              onClick={() => {
+                                setSearchOpen(false);
+                                setSearchTerm("");
+                                setShowSearchDropdown(false);
+                                dispatch(clearSearchResults());
+                                navigate(`/product/${product.id}`);
+                              }}
+                            >
+                              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-md bg-gray-100 overflow-hidden flex-shrink-0">
+                                {product.featured_image ? (
+                                  <img
+                                    src={product.featured_image}
+                                    alt={product.name}
+                                    className="w-full h-full object-cover"
+                                  />
+                                ) : (
+                                  <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs">
+                                    No Image
+                                  </div>
+                                )}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-medium text-gray-900 truncate">
+                                  {product.name}
+                                </p>
+                                {product.category?.name && (
+                                  <p className="text-xs text-gray-500 truncate">
+                                    {product.category.name}
+                                  </p>
+                                )}
+                              </div>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <div className="px-4 py-3 text-sm text-gray-500">No products found</div>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
 

@@ -105,6 +105,22 @@ const createWishlist = async (data) => {
     }
 };
 
+const submitReview = async (data) => {
+    try {
+        const formdata = new FormData();
+        formdata.append("product_id", data?.product_id);
+        formdata.append("rating", data?.rating);
+        formdata.append("review", data?.review_text || "");
+        const config = getAuthConfig();
+        const res = await baseAPI.post(`reviews/add/`, formdata, config);
+        return res.data;
+    } catch (error) {
+        console.log(error);
+        toast.error(error?.response?.data?.message);
+        throw error;
+    }
+};
+
 const removeWishlist = async (data) => {
     try {
         const formdata = new FormData();
@@ -118,15 +134,29 @@ const removeWishlist = async (data) => {
     }
 };
 
+const searchProducts = async (search) => {
+    try {
+        const config = getAuthConfig();
+        const res = await baseAPI.get(`search-products/?search=${encodeURIComponent(search || "")}`, config);
+        return res.data;
+    } catch (error) {
+        console.log(error);
+        toast.error(error?.response?.data?.message);
+        throw error;
+    }
+};
+
 const CommanServices = {
     getDashboard,
     createContact,
     createWishlist,
+    submitReview,
     getAllProducts,
     getAllProductsByCategory,
     getProductDetails,
     getWishlist,
-    removeWishlist
+    removeWishlist,
+    searchProducts
 };
 
 export default CommanServices;
