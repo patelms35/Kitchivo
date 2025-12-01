@@ -1,12 +1,16 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import Navbar from '../../components/Navbar';
-import Footer from '../../components/Footer';
-import Breadcrumb from '../../components/Breadcrumb';
-import { fetchProductDetails, createWishlist, submitReview } from '../../redux/slices/CommanSlice';
-import { toast } from 'react-toastify';
-import Swal from 'sweetalert2';
+import React, { useEffect, useMemo, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import Navbar from "../../components/Navbar";
+import Footer from "../../components/Footer";
+import Breadcrumb from "../../components/Breadcrumb";
+import {
+  fetchProductDetails,
+  createWishlist,
+  submitReview,
+} from "../../redux/slices/CommanSlice";
+import { toast } from "react-toastify";
+import Swal from "sweetalert2";
 
 // const formatReviewDate = (isoString) => {
 //   if (!isoString) return '';
@@ -29,45 +33,58 @@ import Swal from 'sweetalert2';
 // };
 
 const formatReviewDate = (isoString) => {
-  if (!isoString) return '';
+  if (!isoString) return "";
   const date = new Date(isoString);
-  if (Number.isNaN(date.getTime())) return '';
+  if (Number.isNaN(date.getTime())) return "";
 
   const now = new Date();
   const msPerDay = 24 * 60 * 60 * 1000;
 
   // Compute difference in calendar days (local time) by using UTC midnight for each local date.
   // This avoids problems where a small timezone/time-of-day difference makes the diff negative.
-  const utcNowMidnight = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
-  const utcDateMidnight = Date.UTC(date.getFullYear(), date.getMonth(), date.getDate());
+  const utcNowMidnight = Date.UTC(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate()
+  );
+  const utcDateMidnight = Date.UTC(
+    date.getFullYear(),
+    date.getMonth(),
+    date.getDate()
+  );
 
   const diffDays = Math.floor((utcNowMidnight - utcDateMidnight) / msPerDay);
 
-  if (diffDays === 0) return 'Today';
-  if (diffDays === 1) return '1 day ago';
+  if (diffDays === 0) return "Today";
+  if (diffDays === 1) return "1 day ago";
   if (diffDays > 1 && diffDays < 7) return `${diffDays} days ago`;
   if (diffDays < 0) {
     // In case the timestamp is in the future (unlikely for reviews) — show a safe label.
-    return 'Today';
+    return "Today";
   }
 
-  return date.toLocaleDateString('en-GB', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
+  return date.toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
   });
 };
 
-const StarRating = ({ rating = 0, className = '' }) => {
+const StarRating = ({ rating = 0, className = "" }) => {
   const safeRating = Number.isFinite(rating) ? rating : 0;
   const rounded = Math.round(safeRating);
 
   return (
-    <div className={`flex items-center ${className}`} aria-label={`${safeRating.toFixed(1)} out of 5 stars`}>
+    <div
+      className={`flex items-center ${className}`}
+      aria-label={`${safeRating.toFixed(1)} out of 5 stars`}
+    >
       {[1, 2, 3, 4, 5].map((star) => (
         <svg
           key={star}
-          className={`w-4 h-4 sm:w-5 sm:h-5 ${star <= rounded ? 'text-yellow-400' : 'text-gray-300'}`}
+          className={`w-4 h-4 sm:w-5 sm:h-5 ${
+            star <= rounded ? "text-yellow-400" : "text-gray-300"
+          }`}
           fill="currentColor"
           viewBox="0 0 20 20"
         >
@@ -78,9 +95,9 @@ const StarRating = ({ rating = 0, className = '' }) => {
   );
 };
 
-const StarRatingInput = ({ value = 0, onChange, className = '' }) => {
+const StarRatingInput = ({ value = 0, onChange, className = "" }) => {
   const handleClick = (rating) => {
-    if (typeof onChange === 'function') {
+    if (typeof onChange === "function") {
       onChange(rating);
     }
   };
@@ -95,7 +112,9 @@ const StarRatingInput = ({ value = 0, onChange, className = '' }) => {
           className="focus:outline-none"
         >
           <svg
-            className={`w-6 h-6 ${star <= value ? 'text-yellow-400' : 'text-gray-300'}`}
+            className={`w-6 h-6 ${
+              star <= value ? "text-yellow-400" : "text-gray-300"
+            }`}
             fill="currentColor"
             viewBox="0 0 20 20"
           >
@@ -123,23 +142,32 @@ const ReviewModal = ({
     <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/40 px-4 sm:px-0">
       <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
         <div className="flex items-center justify-between px-4 py-3 border-b">
-          <h3 className="text-base sm:text-lg font-semibold text-gray-900">Write a review</h3>
+          <h3 className="text-base sm:text-lg font-semibold text-gray-900">
+            Write a review
+          </h3>
           <button
             type="button"
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600"
           >
             <span className="sr-only">Close</span>
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           </button>
         </div>
 
-        <form
-          onSubmit={onSubmit}
-          className="px-4 pt-4 pb-5 space-y-4"
-        >
+        <form onSubmit={onSubmit} className="px-4 pt-4 pb-5 space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Rating
@@ -148,7 +176,10 @@ const ReviewModal = ({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="review-textarea">
+            <label
+              className="block text-sm font-medium text-gray-700 mb-1"
+              htmlFor="review-textarea"
+            >
               Review
             </label>
             <textarea
@@ -175,7 +206,7 @@ const ReviewModal = ({
               className="inline-flex items-center justify-center px-4 py-2 rounded-md text-sm font-semibold text-white bg-lima-600 hover:bg-lima-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-lima-500 disabled:opacity-60 disabled:cursor-not-allowed"
               disabled={submitting}
             >
-              {submitting ? 'Submitting...' : 'Submit review'}
+              {submitting ? "Submitting..." : "Submit review"}
             </button>
           </div>
         </form>
@@ -191,13 +222,15 @@ const RatingStats = ({ ratingStats, reviews }) => {
   const averageRating =
     ratingStats?.average_rating ??
     (totalReviews
-      ? reviews.reduce((sum, r) => sum + (Number(r.rating) || 0), 0) / totalReviews
+      ? reviews.reduce((sum, r) => sum + (Number(r.rating) || 0), 0) /
+        totalReviews
       : 0);
 
   const distribution = ratingStats?.rating_distribution || {};
 
   const getCount = (star) => distribution[`${star}_star`] ?? 0;
-  const getPercentage = (count) => (totalReviews ? Math.round((count / totalReviews) * 100) : 0);
+  const getPercentage = (count) =>
+    totalReviews ? Math.round((count / totalReviews) * 100) : 0;
 
   if (!totalReviews) {
     return (
@@ -219,7 +252,7 @@ const RatingStats = ({ ratingStats, reviews }) => {
           <StarRating rating={averageRating} />
         </div>
         <p className="mt-2 text-sm text-gray-600">
-          Based on {totalReviews} review{totalReviews !== 1 ? 's' : ''}
+          Based on {totalReviews} review{totalReviews !== 1 ? "s" : ""}
         </p>
       </div>
 
@@ -230,14 +263,18 @@ const RatingStats = ({ ratingStats, reviews }) => {
 
           return (
             <div key={star} className="flex items-center gap-3">
-              <span className="w-10 text-xs sm:text-sm text-gray-700">{star}★</span>
+              <span className="w-10 text-xs sm:text-sm text-gray-700">
+                {star}★
+              </span>
               <div className="flex-1 h-2 rounded-full bg-gray-100 overflow-hidden">
                 <div
                   className="h-2 rounded-full bg-yellow-400"
                   style={{ width: `${percentage}%` }}
                 />
               </div>
-              <span className="w-10 text-xs sm:text-sm text-gray-500 text-right">{count}</span>
+              <span className="w-10 text-xs sm:text-sm text-gray-500 text-right">
+                {count}
+              </span>
             </div>
           );
         })}
@@ -247,10 +284,12 @@ const RatingStats = ({ ratingStats, reviews }) => {
 };
 
 const ReviewItem = ({ review }) => {
-  const name = review.customer_name || 'Anonymous';
+  const name = review.customer_name || "Anonymous";
   const rating = Number(review.rating) || 0;
   const comment =
-    review.review && review.review.trim() ? review.review : 'No comment provided.';
+    review.review && review.review.trim()
+      ? review.review
+      : "No comment provided.";
   const dateLabel = formatReviewDate(review.created_at);
 
   return (
@@ -260,9 +299,13 @@ const ReviewItem = ({ review }) => {
           <StarRating rating={rating} />
           <span className="text-sm font-medium text-gray-800">{name}</span>
         </div>
-        {dateLabel && <span className="text-xs text-gray-400">{dateLabel}</span>}
+        {dateLabel && (
+          <span className="text-xs text-gray-400">{dateLabel}</span>
+        )}
       </div>
-      <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{comment}</p>
+      <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-line">
+        {comment}
+      </p>
     </div>
   );
 };
@@ -301,10 +344,10 @@ const ProductDetail = () => {
   const [displayedImages, setDisplayedImages] = useState([]);
   const [selectedSizeId, setSelectedSizeId] = useState(null);
   const [selectedColorId, setSelectedColorId] = useState(null);
-  const [activeTab, setActiveTab] = useState('description');
+  const [activeTab, setActiveTab] = useState("description");
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const [reviewRating, setReviewRating] = useState(0);
-  const [reviewText, setReviewText] = useState('');
+  const [reviewText, setReviewText] = useState("");
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
@@ -324,7 +367,7 @@ const ProductDetail = () => {
 
   useEffect(() => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       setIsLoggedIn(!!token);
     } catch (e) {
       setIsLoggedIn(false);
@@ -349,8 +392,10 @@ const ProductDetail = () => {
 
     if (!hasSize && !hasColor) return null;
 
-    const selectedSizeKey = selectedSizeId != null ? String(selectedSizeId) : null;
-    const selectedColorKey = selectedColorId != null ? String(selectedColorId) : null;
+    const selectedSizeKey =
+      selectedSizeId != null ? String(selectedSizeId) : null;
+    const selectedColorKey =
+      selectedColorId != null ? String(selectedColorId) : null;
 
     return (
       product.variants.find((v) => {
@@ -395,8 +440,7 @@ const ProductDetail = () => {
       setDisplayedImages(allImages);
 
       if (!selectedImageUrl) {
-        const fallback =
-          product.featured_image || allImages[0]?.url || null;
+        const fallback = product.featured_image || allImages[0]?.url || null;
 
         if (fallback) {
           setSelectedImageUrl(fallback);
@@ -408,8 +452,7 @@ const ProductDetail = () => {
         );
 
         if (!existsInAll) {
-          const fallback =
-            product.featured_image || allImages[0]?.url || null;
+          const fallback = product.featured_image || allImages[0]?.url || null;
 
           if (fallback) {
             setSelectedImageUrl(fallback);
@@ -436,19 +479,19 @@ const ProductDetail = () => {
   const handleOpenReviewModal = () => {
     if (!isLoggedIn) {
       Swal.fire({
-        title: 'Login required',
-        text: 'Please login first to write a review.',
-        icon: 'warning',
-        confirmButtonText: 'Login',
+        title: "Login required",
+        text: "Please login first to write a review.",
+        icon: "warning",
+        confirmButtonText: "Login",
       }).then((result) => {
         if (result.isConfirmed) {
-          navigate('/login');
+          navigate("/login");
         }
       });
       return;
     }
     setReviewRating(0);
-    setReviewText('');
+    setReviewText("");
     setIsReviewModalOpen(true);
   };
 
@@ -462,7 +505,7 @@ const ProductDetail = () => {
     if (!product) return;
 
     if (!reviewRating || reviewRating < 1 || reviewRating > 5) {
-      toast.error('Please select a rating between 1 and 5 stars.');
+      toast.error("Please select a rating between 1 and 5 stars.");
       return;
     }
 
@@ -477,18 +520,20 @@ const ProductDetail = () => {
       );
 
       if (resultAction?.payload?.status === 1) {
-        toast.success(resultAction?.payload?.message || 'Review submitted successfully');
+        toast.success(
+          resultAction?.payload?.message || "Review submitted successfully"
+        );
         setIsReviewModalOpen(false);
         setReviewRating(0);
-        setReviewText('');
+        setReviewText("");
         dispatch(fetchProductDetails({ product_id: product.id }));
       } else {
         toast.error(
-          resultAction?.payload?.message || 'Failed to submit review'
+          resultAction?.payload?.message || "Failed to submit review"
         );
       }
     } catch (error) {
-      toast.error('Failed to submit review');
+      toast.error("Failed to submit review");
     } finally {
       setIsSubmittingReview(false);
     }
@@ -497,16 +542,16 @@ const ProductDetail = () => {
   const handleWishlistClick = async () => {
     if (!product) return;
 
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     if (!token) {
       Swal.fire({
-        title: 'Login required',
-        text: 'Please login first to add products to your wishlist.',
-        icon: 'warning',
-        confirmButtonText: 'Login',
+        title: "Login required",
+        text: "Please login first to add products to your wishlist.",
+        icon: "warning",
+        confirmButtonText: "Login",
       }).then((result) => {
         if (result.isConfirmed) {
-          navigate('/login');
+          navigate("/login");
         }
       });
       return;
@@ -517,21 +562,21 @@ const ProductDetail = () => {
         createWishlist({ product_id: product.id })
       );
       if (resultAction?.payload?.status === 1) {
-        toast.success(resultAction?.payload?.message || 'Wishlist updated');
+        toast.success(resultAction?.payload?.message || "Wishlist updated");
         dispatch(fetchProductDetails({ product_id: product.id }));
       } else {
         toast.error(
-          resultAction?.payload?.message || 'Failed to update wishlist'
+          resultAction?.payload?.message || "Failed to update wishlist"
         );
       }
     } catch (error) {
-      toast.error('Failed to update wishlist');
+      toast.error("Failed to update wishlist");
     }
   };
 
   const handleBuyOnAmazon = () => {
     if (product?.url) {
-      window.open(product.url, '_blank', 'noopener,noreferrer');
+      window.open(product.url, "_blank", "noopener,noreferrer");
     }
   };
 
@@ -560,7 +605,7 @@ const ProductDetail = () => {
               We couldn&apos;t find the product you&apos;re looking for.
             </p>
             <button
-              onClick={() => navigate('/products')}
+              onClick={() => navigate("/products")}
               className="px-6 py-2 bg-lima-600 text-white rounded-lg font-semibold hover:bg-lima-700 transition-colors"
             >
               Back to Products
@@ -579,15 +624,15 @@ const ProductDetail = () => {
 
   const isMrpZero =
     !product.mrp ||
-    product.mrp === '0' ||
-    product.mrp === '0.00' ||
-    product.mrp === 'null';
+    product.mrp === "0" ||
+    product.mrp === "0.00" ||
+    product.mrp === "null";
 
   const isSalePriceZero =
     !product.sale_price ||
-    product.sale_price === '0' ||
-    product.sale_price === '0.00' ||
-    product.sale_price === 'null';
+    product.sale_price === "0" ||
+    product.sale_price === "0.00" ||
+    product.sale_price === "null";
 
   const reviews = product.reviews || [];
   const ratingStats = product.rating_stats || null;
@@ -606,9 +651,9 @@ const ProductDetail = () => {
 
       <Breadcrumb
         items={[
-          { label: 'Home', href: '/' },
-          { label: product.category?.name || 'Products', href: '/products' },
-          { label: product.name || 'Product Details' },
+          { label: "Home", href: "/" },
+          { label: product.category?.name || "Products", href: "/products" },
+          { label: product.name || "Product Details" },
         ]}
       />
 
@@ -626,8 +671,8 @@ const ProductDetail = () => {
                     onClick={() => handleThumbnailClick(img.url, index)}
                     className={`shrink-0 w-16 h-16 lg:w-20 lg:h-20 bg-gray-100 rounded-lg overflow-hidden border-2 transition-all ${
                       selectedThumbIndex === index
-                        ? 'border-lima-600 ring-2 ring-lima-200'
-                        : 'border-gray-200 hover:border-gray-300'
+                        ? "border-lima-600 ring-2 ring-lima-200"
+                        : "border-gray-200 hover:border-gray-300"
                     }`}
                   >
                     <img
@@ -649,7 +694,9 @@ const ProductDetail = () => {
                       className="w-full h-full object-contain"
                     />
                   ) : (
-                    <div className="text-gray-400 text-sm">No image available</div>
+                    <div className="text-gray-400 text-sm">
+                      No image available
+                    </div>
                   )}
                 </div>
               </div>
@@ -678,13 +725,16 @@ const ProductDetail = () => {
                       <StarRating rating={headerAverageRating} />
                     </div>
                     <span className="text-sm text-gray-600">
-                      {headerTotalReviews} review{headerTotalReviews !== 1 ? 's' : ''}
+                      {headerTotalReviews} review
+                      {headerTotalReviews !== 1 ? "s" : ""}
                     </span>
                   </div>
                 ) : (
                   <div className="flex items-center gap-2 mb-4">
                     <StarRating rating={0} />
-                    <span className="text-sm text-gray-500">No reviews yet</span>
+                    <span className="text-sm text-gray-500">
+                      No reviews yet
+                    </span>
                   </div>
                 )}
 
@@ -730,7 +780,9 @@ const ProductDetail = () => {
               {/* Variants: Sizes */}
               {product.available_sizes?.length > 0 && (
                 <div>
-                  <h3 className="text-sm font-semibold text-gray-900 mb-2">Size</h3>
+                  <h3 className="text-sm font-semibold text-gray-900 mb-2">
+                    Size
+                  </h3>
                   <div className="flex flex-wrap gap-2">
                     {product.available_sizes.map((size) => (
                       <button
@@ -738,8 +790,8 @@ const ProductDetail = () => {
                         onClick={() => setSelectedSizeId(size.id)}
                         className={`px-4 py-2 min-w-12 border-2 rounded font-medium text-sm transition-all ${
                           selectedSizeId === size.id
-                            ? 'border-lima-600 bg-lima-600 text-white'
-                            : 'border-gray-300 text-gray-700 hover:border-gray-400'
+                            ? "border-lima-600 bg-lima-600 text-white"
+                            : "border-gray-300 text-gray-700 hover:border-gray-400"
                         }`}
                       >
                         {size.name}
@@ -751,7 +803,9 @@ const ProductDetail = () => {
               {/* Variants: Colors */}
               {product.available_colors?.length > 0 && (
                 <div>
-                  <h3 className="text-sm font-semibold text-gray-900 mb-2">Color</h3>
+                  <h3 className="text-sm font-semibold text-gray-900 mb-2">
+                    Color
+                  </h3>
                   <div className="flex flex-wrap gap-3">
                     {product.available_colors.map((color) => (
                       <button
@@ -759,14 +813,16 @@ const ProductDetail = () => {
                         onClick={() => setSelectedColorId(color.id)}
                         className={`w-10 h-10 rounded-full border-2 transition-all ${
                           selectedColorId === color.id
-                            ? 'border-gray-900 ring-2 ring-offset-2 ring-gray-900'
-                            : 'border-gray-300 hover:border-gray-400'
+                            ? "border-gray-900 ring-2 ring-offset-2 ring-gray-900"
+                            : "border-gray-300 hover:border-gray-400"
                         }`}
                         aria-label={color.name}
                       >
                         <div
                           className="w-full h-full rounded-full"
-                          style={{ backgroundColor: color.hex_code || '#e5e7eb' }}
+                          style={{
+                            backgroundColor: color.hex_code || "#e5e7eb",
+                          }}
                         />
                       </button>
                     ))}
@@ -780,20 +836,23 @@ const ProductDetail = () => {
                   onClick={handleBuyOnAmazon}
                   className="w-full bg-orange-500 text-white py-3 px-6 rounded font-semibold text-base hover:bg-orange-600 transition-all duration-300 inline-flex items-center justify-center"
                 >
-                  <svg
-                    className="w-5 h-5 mr-2"
-                    fill="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path d="M6 2h9a5 5 0 0 1 3.995 8.08A5.5 5.5 0 0 1 17.5 21H7a5 5 0 0 1-1-9.9V7a5 5 0 0 1 5-5z" />
-                  </svg>
                   Buy on Amazon
                 </button>
 
                 <div className="flex items-center gap-4 text-sm">
                   <button className="flex items-center gap-2 text-gray-600 hover:text-lima-600 transition-colors">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                      />
                     </svg>
                     Size Guide
                   </button>
@@ -801,13 +860,13 @@ const ProductDetail = () => {
                     onClick={handleWishlistClick}
                     className={`flex items-center gap-2 text-sm font-semibold px-3 py-2 rounded-lg border transition-colors ${
                       isWishlisted
-                        ? 'border-lima-600 bg-lima-600 text-white'
-                        : 'border-gray-300 text-gray-700 hover:border-lima-600 hover:text-lima-700'
+                        ? "border-lima-600 bg-lima-600 text-white"
+                        : "border-gray-300 text-gray-700 hover:border-lima-600 hover:text-lima-700"
                     }`}
                   >
                     <svg
                       className="w-4 h-4"
-                      fill={isWishlisted ? 'currentColor' : 'none'}
+                      fill={isWishlisted ? "currentColor" : "none"}
                       stroke="currentColor"
                       viewBox="0 0 24 24"
                     >
@@ -818,7 +877,7 @@ const ProductDetail = () => {
                         d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
                       />
                     </svg>
-                    {isWishlisted ? 'In Wishlist' : 'Add to Wishlist'}
+                    {isWishlisted ? "In Wishlist" : "Add to Wishlist"}
                   </button>
                 </div>
               </div>
@@ -828,11 +887,10 @@ const ProductDetail = () => {
                 <div className="flex gap-2">
                   <span className="text-gray-600">Category:</span>
                   <span className="text-gray-900">
-                    {product.category?.name || 'N/A'}
+                    {product.category?.name || "N/A"}
                   </span>
                 </div>
               </div>
-
             </div>
           </div>
 
@@ -840,11 +898,12 @@ const ProductDetail = () => {
           <div className="mt-12 border-t">
             <div className="flex md:gap-4 lg:gap-8 border-b">
               <button
-                onClick={() => setActiveTab('description')}
-                className={`py-4 px-2 border-b-2 font-medium transition-colors ${activeTab === 'description'
-                  ? 'border-gray-900 text-gray-900'
-                  : 'border-transparent text-gray-500 hover:text-gray-900'
-                  }`}
+                onClick={() => setActiveTab("description")}
+                className={`py-4 px-2 border-b-2 font-medium transition-colors ${
+                  activeTab === "description"
+                    ? "border-gray-900 text-gray-900"
+                    : "border-transparent text-gray-500 hover:text-gray-900"
+                }`}
               >
                 Description
               </button>
@@ -858,25 +917,29 @@ const ProductDetail = () => {
                 Product Details
               </button> */}
               <button
-                onClick={() => setActiveTab('reviews')}
-                className={`py-4 px-2 border-b-2 font-medium transition-colors ${activeTab === 'reviews'
-                  ? 'border-gray-900 text-gray-900'
-                  : 'border-transparent text-gray-500 hover:text-gray-900'
-                  }`}
+                onClick={() => setActiveTab("reviews")}
+                className={`py-4 px-2 border-b-2 font-medium transition-colors ${
+                  activeTab === "reviews"
+                    ? "border-gray-900 text-gray-900"
+                    : "border-transparent text-gray-500 hover:text-gray-900"
+                }`}
               >
                 Reviews
               </button>
             </div>
             <div className="py-8">
-              {activeTab === 'description' && (
+              {activeTab === "description" && (
                 <div>
-                  <h3 className="text-lg font-semibold mb-4">Product Description</h3>
+                  <h3 className="text-lg font-semibold mb-4">
+                    Product Description
+                  </h3>
                   <p className="text-gray-600 leading-relaxed mb-4">
                     {product.description}
                   </p>
                   <p className="text-gray-600 leading-relaxed">
-                    This premium quality product ensures durability and comfort for everyday use.
-                    Made with the finest materials and crafted with attention to detail.
+                    This premium quality product ensures durability and comfort
+                    for everyday use. Made with the finest materials and crafted
+                    with attention to detail.
                   </p>
                 </div>
               )}
@@ -907,11 +970,11 @@ const ProductDetail = () => {
                   </div>
                 </div>
               )} */}
-              {activeTab === 'reviews' && (
+              {activeTab === "reviews" && (
                 <div className="space-y-8">
                   <div className="flex items-center justify-between gap-2">
                     <h3 className="text-lg font-semibold">Customer Reviews</h3>
-                    {(isLoggedIn && !product?.is_reviewed) && (
+                    {isLoggedIn && !product?.is_reviewed && (
                       <button
                         type="button"
                         onClick={handleOpenReviewModal}
@@ -947,5 +1010,3 @@ const ProductDetail = () => {
 };
 
 export default ProductDetail;
-
-

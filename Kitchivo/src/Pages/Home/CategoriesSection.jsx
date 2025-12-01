@@ -168,7 +168,7 @@ const CategoriesSection = ({ categories = [] }) => {
           {/* Categories Slider */}
           <div
             ref={scrollContainerRef}
-            className="flex gap-4 sm:gap-6 overflow-x-auto scrollbar-hide scroll-smooth pb-4 snap-x snap-mandatory"
+            className="flex gap-4 sm:gap-6 overflow-x-auto scrollbar-hide scroll-smooth pb-4 pt-4 snap-x snap-mandatory"
             style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
           >
             {categories.map((category) => (

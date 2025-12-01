@@ -157,7 +157,7 @@ const Login = () => {
                     value={formik.values.email}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
-                    className="block w-full pl-9 sm:pl-11 pr-3 py-2 sm:py-2.5 md:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-lima-500"
+                    className="block w-full pl-3 sm:pl-5 pr-3 py-2 sm:py-2.5 md:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-lima-500"
                     placeholder="you@example.com"
                   />
                 </div>
@@ -186,7 +186,7 @@ const Login = () => {
                     value={formik.values.password}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
-                    className="block w-full pl-9 sm:pl-11 pr-9 py-2 sm:py-2.5 md:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-lima-500"
+                    className="block w-full pl-3 sm:pl-5 pr-9 py-2 sm:py-2.5 md:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-lima-500"
                     placeholder="Enter your password"
                   />
 
