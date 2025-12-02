@@ -263,7 +263,7 @@ const Navbar = () => {
             <div className="shrink-0">
               <Link to="/">
                 <img
-                  src={Logo}
+                  src="https://res.cloudinary.com/duyya1ffr/image/upload/v1764696771/Logo_Full_enjwvd.png"
                   alt="Kitchivo Logo"
                   className="h-6 sm:h-10 w-auto cursor-pointer"
                   onError={(e) => {
