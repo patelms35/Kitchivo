@@ -108,20 +108,22 @@ const WhyChooseUsSection = () => {
           {features.map((feature, index) => (
             <div
               key={index}
-              className="bg-white rounded-xl sm:rounded-2xl p-6 sm:p-8 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100"
+              className="bg-white rounded-xl sm:rounded-2xl p-6 sm:p-8 shadow-lg hover:shadow-2xl transition-all duration-500 border border-gray-100 hover:border-lima-300 transform hover:-translate-y-2 hover:scale-105 group cursor-pointer"
             >
-              <div className="bg-lima-50 w-14 h-14 sm:w-16 sm:h-16 rounded-xl flex items-center justify-center mb-4 sm:mb-6">
-                {feature.icon}
+              <div className="bg-lima-50 w-14 h-14 sm:w-16 sm:h-16 rounded-xl flex items-center justify-center mb-4 sm:mb-6 group-hover:bg-lima-600 transition-all duration-300 group-hover:scale-110 group-hover:rotate-6">
+                <div className="group-hover:scale-110 transition-transform duration-300 [&>svg]:group-hover:text-white">
+                  {feature.icon}
+                </div>
               </div>
-              <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2 sm:mb-3">
+              <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2 sm:mb-3 group-hover:text-lima-600 transition-colors duration-300">
                 {feature.title}
               </h3>
-              <p className="text-gray-600 text-sm sm:text-base mb-4 sm:mb-6">{feature.description}</p>
+              <p className="text-gray-600 text-sm sm:text-base mb-4 sm:mb-6 group-hover:text-gray-700 transition-colors duration-300">{feature.description}</p>
               <ul className="space-y-2">
                 {feature.benefits.map((benefit, idx) => (
-                  <li key={idx} className="flex items-center text-gray-700 text-sm sm:text-base">
+                  <li key={idx} className="flex items-center text-gray-700 text-sm sm:text-base group-hover:translate-x-1 transition-transform duration-300">
                     <svg
-                      className="w-4 h-4 text-lima-500 mr-2 flex-shrink-0"
+                      className="w-4 h-4 text-lima-500 mr-2 flex-shrink-0 group-hover:text-lima-600 group-hover:scale-125 transition-all duration-300"
                       fill="currentColor"
                       viewBox="0 0 20 20"
                     >

@@ -17,6 +17,23 @@ const registerSendOtp = async (data) => {
     }
 };
 
+const changePassword = async (data) => {
+    try {
+        const formdata = new FormData();
+        formdata.append("old_password", data?.old_password);
+        formdata.append("new_password", data?.new_password);
+
+        const res = await baseAPI.post(`change-password/`, formdata, {
+            headers: authHeader(),
+        });
+        return res.data;
+    } catch (error) {
+        console.log(error);
+        toast.error(error?.response?.data?.message);
+        throw error;
+    }
+};
+
 const login = async (data) => {
     try {
         let formdata = new FormData();
@@ -128,7 +145,8 @@ const AuthServices = {
     forgotPasswordVerifyOpt,
     resetPassword,
     resendOtp,
-    registerSendOtp
+    registerSendOtp,
+    changePassword,
 };
 
 export default AuthServices;

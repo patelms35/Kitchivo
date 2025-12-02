@@ -17,6 +17,31 @@ export const getDashboard = createAsyncThunk(
     }
 );
 
+export const updateUserProfileThunk = createAsyncThunk(
+    "auth/updateUserProfile",
+    async (formData, { rejectWithValue }) => {
+        try {
+            const res = await CommanServices.updateUserProfile(formData);
+            return res;
+        } catch (error) {
+            console.log(error);
+            return rejectWithValue(error?.response?.data || error.message);
+        }
+    }
+);
+
+export const getSystemSettings = createAsyncThunk(
+    "auth/getSystemSettings",
+    async () => {
+        try {
+            const res = await CommanServices.getSystemSettings();
+            return res;
+        } catch (error) {
+            console.log(error);
+        }
+    }
+);
+
 export const getWishlist = createAsyncThunk(
     "auth/getWishlist",
     async () => {
@@ -142,7 +167,10 @@ const initialState = {
     wishlist:null,
     searchResults: null,
     searchLoading: false,
-
+    systemSettings: null,
+    profile: null,
+    updateProfileLoading: false,
+    updateProfileError: null,
     categoryProducts: {
         category: null,
         products: [],
@@ -179,6 +207,17 @@ const CommanSlice = createSlice({
                 state.dashboard = payload?.data;
             })
             .addCase(getDashboard.rejected, (state) => {
+                state.loading = false;
+            });
+        builder
+            .addCase(getSystemSettings.pending, (state) => {
+                state.loading = true;
+            })
+            .addCase(getSystemSettings.fulfilled, (state, { payload }) => {
+                state.loading = false;
+                state.systemSettings = payload?.data;
+            })
+            .addCase(getSystemSettings.rejected, (state) => {
                 state.loading = false;
             });
         builder
@@ -294,6 +333,20 @@ const CommanSlice = createSlice({
             })
             .addCase(submitReview.rejected, (state, { payload }) => {
                 state.error = payload || true;
+            });
+        builder
+            .addCase(updateUserProfileThunk.pending, (state) => {
+                state.updateProfileLoading = true;
+                state.updateProfileError = null;
+            })
+            .addCase(updateUserProfileThunk.fulfilled, (state, { payload }) => {
+                state.updateProfileLoading = false;
+                state.updateProfileError = null;
+                state.profile = payload?.data || null;
+            })
+            .addCase(updateUserProfileThunk.rejected, (state, { payload }) => {
+                state.updateProfileLoading = false;
+                state.updateProfileError = payload || true;
             });
     },
 });

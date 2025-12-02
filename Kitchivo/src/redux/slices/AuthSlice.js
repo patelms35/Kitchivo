@@ -16,6 +16,19 @@ export const getProfile = createAsyncThunk(
     }
 );
 
+export const changePasswordThunk = createAsyncThunk(
+    "auth/changePassword",
+    async (data, { rejectWithValue }) => {
+        try {
+            const res = await AuthServices.changePassword(data);
+            return res;
+        } catch (error) {
+            console.log(error);
+            return rejectWithValue(error?.response?.data || error.message);
+        }
+    }
+);
+
 
 export const forgotPassword = createAsyncThunk(
     "auth/forgotPassword",
@@ -83,6 +96,8 @@ const initialState = {
     loading: false,
     error: false,
     user: null,
+    changePasswordLoading: false,
+    changePasswordError: null,
 };
 
 
@@ -144,6 +159,19 @@ const AuthSlice = createSlice({
             .addCase(resetPassword.rejected, (state) => {
                 state.loading = false;
             })
+        builder
+            .addCase(changePasswordThunk.pending, (state) => {
+                state.changePasswordLoading = true;
+                state.changePasswordError = null;
+            })
+            .addCase(changePasswordThunk.fulfilled, (state, { payload }) => {
+                state.changePasswordLoading = false;
+                state.changePasswordError = null;
+            })
+            .addCase(changePasswordThunk.rejected, (state, { payload }) => {
+                state.changePasswordLoading = false;
+                state.changePasswordError = payload || true;
+            });
     },
 });
 

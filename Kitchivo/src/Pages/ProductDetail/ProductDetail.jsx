@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import Breadcrumb from "../../components/Breadcrumb";
+import ProductPrice from "../../components/ProductPrice";
 import {
   fetchProductDetails,
   createWishlist,
@@ -617,23 +618,6 @@ const ProductDetail = () => {
     );
   }
 
-  const displayMrp = product.mrp;
-  const displaySalePrice = product.sale_price;
-  const displayUsdMrp = product.price_in_dolor;
-  const displayUsdSale = product.sale_price_in_dollar;
-
-  const isMrpZero =
-    !product.mrp ||
-    product.mrp === "0" ||
-    product.mrp === "0.00" ||
-    product.mrp === "null";
-
-  const isSalePriceZero =
-    !product.sale_price ||
-    product.sale_price === "0" ||
-    product.sale_price === "0.00" ||
-    product.sale_price === "null";
-
   const reviews = product.reviews || [];
   const ratingStats = product.rating_stats || null;
   const headerTotalReviews =
@@ -745,35 +729,7 @@ const ProductDetail = () => {
 
                 {/* Price (₹ / $ logic) */}
                 <div className="mb-2">
-                  <div className="flex items-center gap-2">
-                    {isMrpZero ? (
-                      <p className="text-sm sm:text-base font-normal text-gray-400 line-through">
-                        $ {displayUsdMrp}
-                      </p>
-                    ) : (
-                      <p className="text-sm sm:text-base font-normal text-gray-400 line-through">
-                        ₹ {displayMrp}
-                      </p>
-                    )}
-
-                    {isSalePriceZero ? (
-                      <p className="text-base sm:text-lg font-semibold text-san-felix-800">
-                        $ {displayUsdSale}
-                      </p>
-                    ) : (
-                      <p className="text-base sm:text-lg font-semibold text-san-felix-800">
-                        ₹ {displaySalePrice}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* <p
-                    className={`mt-2 text-sm font-medium ${
-                      inStock ? 'text-emerald-600' : 'text-red-600'
-                    }`}
-                  >
-                    {inStock ? 'In stock' : 'Out of stock'}
-                  </p> */}
+                  <ProductPrice product={activeVariant || product} />
                 </div>
               </div>
 
@@ -840,7 +796,7 @@ const ProductDetail = () => {
                 </button>
 
                 <div className="flex items-center gap-4 text-sm">
-                  <button className="flex items-center gap-2 text-gray-600 hover:text-lima-600 transition-colors">
+                  {/* <button className="flex items-center gap-2 text-gray-600 hover:text-lima-600 transition-colors">
                     <svg
                       className="w-4 h-4"
                       fill="none"
@@ -855,17 +811,19 @@ const ProductDetail = () => {
                       />
                     </svg>
                     Size Guide
-                  </button>
+                  </button> */}
                   <button
                     onClick={handleWishlistClick}
                     className={`flex items-center gap-2 text-sm font-semibold px-3 py-2 rounded-lg border transition-colors ${
                       isWishlisted
-                        ? "border-lima-600 bg-lima-600 text-white"
+                        ? "border-lima-600 text-lima-700 bg-white"
                         : "border-gray-300 text-gray-700 hover:border-lima-600 hover:text-lima-700"
                     }`}
                   >
                     <svg
-                      className="w-4 h-4"
+                      className={`w-4 h-4 ${
+                        isWishlisted ? "text-base" : "text-gray-500"
+                      }`}
                       fill={isWishlisted ? "currentColor" : "none"}
                       stroke="currentColor"
                       viewBox="0 0 24 24"

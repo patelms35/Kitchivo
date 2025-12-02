@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 import Breadcrumb from '../../components/Breadcrumb';
+import ProductPrice from '../../components/ProductPrice';
 import deleteIcon from "../../assets/delete.svg";
 import { createWishlist, getWishlist, removeWishlist } from '../../redux/slices/CommanSlice';
 import { useDispatch, useSelector } from 'react-redux';
@@ -193,16 +194,7 @@ const Wishlist = () => {
 
                     {/* Price */}
                     <div className="mb-2">
-                      <div className="flex items-center gap-2">
-                        <p className="text-base font-semibold text-san-felix-800">
-                          ₹ {product.sale_price}
-                        </p>
-                        {product.mrp && (
-                          <p className="text-xs text-gray-400 line-through">
-                            ₹ {product.mrp}
-                          </p>
-                        )}
-                      </div>
+                      <ProductPrice product={product} />
                     </div>
 
                     {/* Sizes */}

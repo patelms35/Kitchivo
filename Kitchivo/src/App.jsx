@@ -13,16 +13,20 @@ import Products from './Pages/Products/Products';
 import NewProducts from './Pages/NewProducts/NewProducts';
 import PrivacyPolicy from './Pages/PrivacyPolicy/PrivacyPolicy';
 import TermsOfService from './Pages/TermsOfService/TermsOfService';
+import ProfileEdit from './Pages/ProfileEdit/ProfileEdit';
+import Profile from './Pages/Profile/Profile';
+import ChangePassword from './Pages/ChangePassword/ChangePassword';
 import { useDispatch } from 'react-redux';
 import { getProfile } from './redux/slices/AuthSlice';
 import { useEffect } from 'react';
-import { getDashboard } from './redux/slices/CommanSlice';
+import { getDashboard, getSystemSettings } from './redux/slices/CommanSlice';
 
 function App() {
   const dispatch = useDispatch();
   const token = localStorage.getItem("token");
   useEffect(() => {
     dispatch(getDashboard());
+    dispatch(getSystemSettings());
     if (token) {
       dispatch(getProfile());
     }
@@ -45,6 +49,9 @@ function App() {
       <Route path="/product/:id" element={<ProductDetail />} />
       <Route path="/privacy-policy" element={<PrivacyPolicy />} />
       <Route path="/terms-of-service" element={<TermsOfService />} />
+      <Route path="/profile-edit" element={<ProfileEdit />} />
+      <Route path="/profile" element={<Profile />} />
+      <Route path="/change-password" element={<ChangePassword />} />
     </Routes>
   );
 }

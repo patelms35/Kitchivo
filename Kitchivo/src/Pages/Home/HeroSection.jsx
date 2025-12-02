@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 const HeroSection = ({ slides = [] }) => {
+  const navigate = useNavigate();
   const [currentSlide, setCurrentSlide] = useState(0);
   
   // Map API slide fields → your UI fields
@@ -104,7 +106,7 @@ const HeroSection = ({ slides = [] }) => {
               {/* Buttons */}
               <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 relative z-10 pt-2">
                 <button
-                  onClick={() => scrollToSection("products")}
+                  onClick={() => navigate("/products")}
                   className="px-6 sm:px-8 py-3 sm:py-4 bg-lima-600 text-white font-semibold text-sm sm:text-base rounded-lg hover:bg-lima-700 active:bg-lima-800 transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg flex items-center justify-center gap-2"
                 >
                   <span>Shop Now</span>

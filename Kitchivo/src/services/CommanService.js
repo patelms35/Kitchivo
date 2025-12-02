@@ -21,6 +21,17 @@ const getDashboard = async () => {
     }
 };
 
+const getSystemSettings = async () => {
+    try {
+        const config = getAuthConfig();
+        const res = await baseAPI.get(`system-settings/`, config);
+        return res.data;
+    } catch (error) {
+        console.log(error);
+        toast.error(error?.response?.data?.message);
+    }
+};
+
 const getWishlist = async () => {
     try {
         const config = getAuthConfig();
@@ -134,6 +145,18 @@ const removeWishlist = async (data) => {
     }
 };
 
+const updateUserProfile = async (formdata) => {
+    try {
+        const config = getAuthConfig();
+        const res = await baseAPI.post(`user/profile/`, formdata, config);
+        return res.data;
+    } catch (error) {
+        console.log(error);
+        toast.error(error?.response?.data?.message);
+        throw error;
+    }
+};
+
 const searchProducts = async (search) => {
     try {
         const config = getAuthConfig();
@@ -156,7 +179,9 @@ const CommanServices = {
     getProductDetails,
     getWishlist,
     removeWishlist,
-    searchProducts
+    searchProducts,
+    getSystemSettings,
+    updateUserProfile,
 };
 
 export default CommanServices;

@@ -1,52 +1,15 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import Logo from "../assets/Logo_Full.png";
+import FooterCurrencySelector from "./FooterCurrencySelector";
+import { calcGeneratorDuration } from "framer-motion";
+import { useSelector } from "react-redux";
 
 const Footer = () => {
-  const currencyOptions = [
-    { code: "INR", label: "India (INR ₹)" },
-    { code: "USD", label: "USA (USD $)" },
-  ];
 
-  const currencyMap = currencyOptions.reduce((acc, option) => {
-    acc[option.code] = option.label;
-    return acc;
-  }, {});
 
-  const [currency, setCurrency] = React.useState(() => {
-    if (typeof window !== "undefined") {
-      return localStorage.getItem("kitchivo:currency") || currencyOptions[0].code;
-    }
-    return currencyOptions[0].code;
-  });
-
-  const [isCurrencyMenuOpen, setIsCurrencyMenuOpen] = React.useState(false);
-  const currencyDropdownRef = React.useRef(null);
-
-  React.useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (
-        currencyDropdownRef.current &&
-        !currencyDropdownRef.current.contains(event.target)
-      ) {
-        setIsCurrencyMenuOpen(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
-
-  React.useEffect(() => {
-    if (typeof window !== "undefined") {
-      localStorage.setItem("kitchivo:currency", currency);
-      window.dispatchEvent(
-        new CustomEvent("kitchivo:currencyChange", { detail: { currency } })
-      );
-    }
-  }, [currency]);
+  const { systemSettings } = useSelector((state) => state.commanStore);
+  console.log(systemSettings);
 
   // Smooth scroll function
   const scrollToSection = (id) => {
@@ -81,7 +44,7 @@ const Footer = () => {
             {/* Social Media */}
             <div className="flex space-x-3">
               <a
-                href="https://facebook.com"
+                href={systemSettings?.facebook_link || "#"}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-9 h-9 sm:w-10 sm:h-10 bg-white rounded-full flex items-center justify-center text-gray-700 hover:bg-lima-600 active:bg-lima-700 hover:text-white active:text-white transition-all duration-300 shadow-sm"
@@ -96,7 +59,7 @@ const Footer = () => {
                 </svg>
               </a>
               <a
-                href="https://instagram.com"
+                href={systemSettings?.instagram_link || "#"}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-9 h-9 sm:w-10 sm:h-10 bg-white rounded-full flex items-center justify-center text-gray-700 hover:bg-lima-600 active:bg-lima-700 hover:text-white active:text-white transition-all duration-300 shadow-sm"
@@ -111,7 +74,7 @@ const Footer = () => {
                 </svg>
               </a>
               <a
-                href="https://youtube.com"
+                href={systemSettings?.youtube_link || "#"}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-9 h-9 sm:w-10 sm:h-10 bg-white rounded-full flex items-center justify-center text-gray-700 hover:bg-lima-600 active:bg-lima-700 hover:text-white active:text-white transition-all duration-300 shadow-sm"
@@ -126,7 +89,7 @@ const Footer = () => {
                 </svg>
               </a>
               <a
-                href="https://twitter.com"
+                href={systemSettings?.twitter_link || "#"}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-9 h-9 sm:w-10 sm:h-10 bg-white rounded-full flex items-center justify-center text-gray-700 hover:bg-lima-600 active:bg-lima-700 hover:text-white active:text-white transition-all duration-300 shadow-sm"
@@ -142,69 +105,7 @@ const Footer = () => {
               </a>
             </div>
             {/* Currency Selector */}
-            {/* <div className="mt-6">
-              <p className="text-gray-800 text-xs sm:text-sm font-semibold mb-2">
-                Preferred Currency
-              </p>
-              <div className="relative" ref={currencyDropdownRef}>
-                <button
-                  type="button"
-                  aria-haspopup="listbox"
-                  aria-expanded={isCurrencyMenuOpen}
-                  onClick={() => setIsCurrencyMenuOpen((prev) => !prev)}
-                  className="w-full text-left text-xs sm:text-sm font-medium text-gray-800 bg-white border border-gray-200 rounded-lg px-3 py-2 flex items-center justify-between focus:outline-none focus:ring-2 focus:ring-lima-500 focus:border-lima-500 transition"
-                >
-                  <span>{currencyMap[currency]}</span>
-                  <svg
-                    className={`w-3.5 h-3.5 text-gray-500 transition-transform ${
-                      isCurrencyMenuOpen ? "rotate-180" : ""
-                    }`}
-                    viewBox="0 0 10 6"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M1 1l4 4 4-4"
-                      stroke="currentColor"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </button>
-
-                {isCurrencyMenuOpen && (
-                  <ul
-                    className="absolute z-20 mt-1 w-full bg-white border border-gray-200 rounded-md shadow-lg text-xs sm:text-sm overflow-hidden"
-                    role="listbox"
-                  >
-                    {currencyOptions.map((option) => (
-                      <li key={option.code}>
-                        <button
-                          type="button"
-                          role="option"
-                          aria-selected={currency === option.code}
-                          onClick={() => {
-                            setCurrency(option.code);
-                            setIsCurrencyMenuOpen(false);
-                          }}
-                          className={`w-full text-left px-4 py-2 hover:bg-lima-50 transition ${
-                            currency === option.code
-                              ? "bg-lima-100 text-lima-800 font-semibold"
-                              : "text-gray-800"
-                          }`}
-                        >
-                          {option.label}
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-              <p className="text-gray-600 text-[11px] sm:text-xs mt-2">
-                Prices update automatically across the site.
-              </p>
-            </div> */}
+            <FooterCurrencySelector />
           </div>
 
           {/* Column 2 - Shop */}
@@ -297,7 +198,7 @@ const Footer = () => {
                 </svg>
                 <div>
                   <p className="text-gray-800 text-xs sm:text-sm font-medium">
-                    +91 0123456789
+                    {systemSettings?.phone || "-"}
                   </p>
                 </div>
               </li>
@@ -317,7 +218,7 @@ const Footer = () => {
                 </svg>
                 <div>
                   <p className="text-gray-800 text-xs sm:text-sm font-medium">
-                    support@kitchivo.com
+                    {systemSettings?.email || "-"}
                   </p>
                 </div>
               </li>
@@ -343,7 +244,7 @@ const Footer = () => {
                 </svg>
                 <div>
                   <p className="text-gray-800 text-xs sm:text-sm font-medium">
-                    Gujarat, India
+                    {systemSettings?.address || "-"}
                   </p>
                 </div>
               </li>

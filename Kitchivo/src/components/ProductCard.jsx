@@ -1,5 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import ProductPrice from "./ProductPrice";
 
 const ProductCard = ({ product, hideWishlistButton = false, onAddToWishlist }) => {
   const navigate = useNavigate();
@@ -7,9 +8,6 @@ const ProductCard = ({ product, hideWishlistButton = false, onAddToWishlist }) =
   const handleQuickView = () => {
     navigate(`/product/${product.id}`);
   };
-
-  const isMrpZero = !product.mrp || product.mrp === "0" || product.mrp === "0.00" || product.mrp === "null";
-  const isSalePriceZero = !product.sale_price || product.sale_price === "0" || product.sale_price === "0.00" || product.sale_price === "null";
 
   const isWishlisted = !!product?.is_wishlisted;
 
@@ -96,27 +94,7 @@ const ProductCard = ({ product, hideWishlistButton = false, onAddToWishlist }) =
           <h3 className="font-semibold text-sm sm:text-base text-gray-800 mb-1 sm:mb-2 group-hover:text-lima-600 transition-colors line-clamp-2">
             {product.name}
           </h3>
-          <div className="flex items-center gap-2">
-            {isMrpZero ? (
-              <p className="text-sm sm:text-base font-normal text-gray-400 line-through">
-                $ {product.price_in_dolor}
-              </p>
-            ) : (
-              <p className="text-sm sm:text-base font-normal text-gray-400 line-through">
-                ₹ {product.mrp}
-              </p>
-            )}
-
-            {isSalePriceZero ? (
-              <p className="text-base sm:text-lg font-semibold text-san-felix-800">
-                $ {product.sale_price_in_dollar}
-              </p>
-            ) : (
-              <p className="text-base sm:text-lg font-semibold text-san-felix-800">
-                ₹ {product.sale_price}
-              </p>
-            )}
-          </div>
+          <ProductPrice product={product} />
         </div>
       </div>
     </>
