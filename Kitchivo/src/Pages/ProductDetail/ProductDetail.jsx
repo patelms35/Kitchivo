@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import Navbar from "../../components/Navbar";
@@ -344,6 +344,7 @@ const ProductDetail = () => {
   const [selectedImageUrl, setSelectedImageUrl] = useState(null);
   const [selectedThumbIndex, setSelectedThumbIndex] = useState(0);
   const [displayedImages, setDisplayedImages] = useState([]);
+  const thumbnailContainerRef = useRef(null);
   const [selectedSizeId, setSelectedSizeId] = useState(null);
   const [selectedColorId, setSelectedColorId] = useState(null);
   const [activeTab, setActiveTab] = useState("description");
@@ -468,6 +469,32 @@ const ProductDetail = () => {
   const handleThumbnailClick = (url, index) => {
     setSelectedImageUrl(url);
     setSelectedThumbIndex(index);
+  };
+
+  // Scroll thumbnail gallery up/left
+  const scrollThumbnailsPrev = () => {
+    if (thumbnailContainerRef.current) {
+      const container = thumbnailContainerRef.current;
+      const isDesktop = window.innerWidth >= 1024;
+      if (isDesktop) {
+        container.scrollBy({ top: -100, behavior: "smooth" });
+      } else {
+        container.scrollBy({ left: -100, behavior: "smooth" });
+      }
+    }
+  };
+
+  // Scroll thumbnail gallery down/right
+  const scrollThumbnailsNext = () => {
+    if (thumbnailContainerRef.current) {
+      const container = thumbnailContainerRef.current;
+      const isDesktop = window.innerWidth >= 1024;
+      if (isDesktop) {
+        container.scrollBy({ top: 100, behavior: "smooth" });
+      } else {
+        container.scrollBy({ left: 100, behavior: "smooth" });
+      }
+    }
   };
 
   const totalStock =
@@ -634,49 +661,67 @@ const ProductDetail = () => {
   const productSchema = {
     "@context": "https://schema.org",
     "@type": "Product",
-    "name": product.name,
-    "image": product.featured_image || displayedImages[0]?.url,
-    "description": product.description || product.name,
-    "brand": {
+    name: product.name,
+    image: product.featured_image || displayedImages[0]?.url,
+    description: product.description || product.name,
+    brand: {
       "@type": "Brand",
-      "name": "Kitchivo"
+      name: "Kitchivo",
     },
-    "offers": {
+    offers: {
       "@type": "Offer",
-      "price": product.price || "0",
-      "priceCurrency": "INR",
-      "availability": product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock"
+      price: product.price || "0",
+      priceCurrency: "INR",
+      availability:
+        product.stock > 0
+          ? "https://schema.org/InStock"
+          : "https://schema.org/OutOfStock",
     },
-    "aggregateRating": headerTotalReviews > 0 ? {
-      "@type": "AggregateRating",
-      "ratingValue": headerAverageRating.toFixed(1),
-      "reviewCount": headerTotalReviews,
-      "bestRating": "5",
-      "worstRating": "1"
-    } : undefined,
-    "review": reviews?.slice(0, 5).map(review => ({
+    aggregateRating:
+      headerTotalReviews > 0
+        ? {
+            "@type": "AggregateRating",
+            ratingValue: headerAverageRating.toFixed(1),
+            reviewCount: headerTotalReviews,
+            bestRating: "5",
+            worstRating: "1",
+          }
+        : undefined,
+    review: reviews?.slice(0, 5).map((review) => ({
       "@type": "Review",
-      "author": {
+      author: {
         "@type": "Person",
-        "name": review.user?.name || "Anonymous"
+        name: review.user?.name || "Anonymous",
       },
-      "datePublished": review.created_at,
-      "reviewRating": {
+      datePublished: review.created_at,
+      reviewRating: {
         "@type": "Rating",
-        "ratingValue": review.rating,
-        "bestRating": "5",
-        "worstRating": "1"
+        ratingValue: review.rating,
+        bestRating: "5",
+        worstRating: "1",
       },
-      "reviewBody": review.comment
-    }))
+      reviewBody: review.comment,
+    })),
   };
 
   return (
     <div className="min-h-screen flex flex-col">
       <SEO
         title={`${product.name} | Buy Online at Best Price - Kitchivo`}
-        description={`${product.description || product.name} - Shop now at Kitchivo. ${headerTotalReviews > 0 ? `Rated ${headerAverageRating.toFixed(1)}/5 by ${headerTotalReviews} customers.` : 'High quality kitchen and home products.'}`}
-        keywords={`${product.name}, ${product.category?.name || 'kitchen products'}, buy ${product.name}, ${product.category?.name} online, kitchenware, home products`}
+        description={`${
+          product.description || product.name
+        } - Shop now at Kitchivo. ${
+          headerTotalReviews > 0
+            ? `Rated ${headerAverageRating.toFixed(
+                1
+              )}/5 by ${headerTotalReviews} customers.`
+            : "High quality kitchen and home products."
+        }`}
+        keywords={`${product.name}, ${
+          product.category?.name || "kitchen products"
+        }, buy ${product.name}, ${
+          product.category?.name
+        } online, kitchenware, home products`}
         canonicalUrl={`${window.location.origin}/product/${product.id}`}
         ogImage={product.featured_image || displayedImages[0]?.url}
         ogType="product"
@@ -698,30 +743,126 @@ const ProductDetail = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
             {/* Left Side - Image Gallery */}
             <div className="flex flex-col-reverse lg:flex-row gap-4">
-              {/* Thumbnail Gallery */}
-              <div className="flex flex-row lg:flex-col gap-2 lg:gap-3 overflow-x-auto lg:overflow-visible">
-                {displayedImages.map((img, index) => (
+              {/* Thumbnail Gallery with Arrows */}
+              <div className="relative flex flex-row lg:flex-col items-center gap-2">
+                {/* Up Arrow (Desktop) / Left Arrow (Mobile) */}
+                {displayedImages.length > 4 && (
                   <button
-                    key={img.id || index}
-                    onClick={() => handleThumbnailClick(img.url, index)}
-                    className={`shrink-0 w-16 h-16 lg:w-20 lg:h-20 bg-gray-100 rounded-lg overflow-hidden border-2 transition-all ${
-                      selectedThumbIndex === index
-                        ? "border-lima-600 ring-2 ring-lima-200"
-                        : "border-gray-200 hover:border-gray-300"
-                    }`}
+                    onClick={scrollThumbnailsPrev}
+                    className="hidden lg:flex w-8 h-8 items-center justify-center bg-white border border-gray-200 rounded-full shadow-sm hover:bg-gray-50 hover:border-gray-300 transition-all z-10"
+                    aria-label="Previous images"
                   >
-                    <img
-                      src={img.url}
-                      alt={`${product.name} view ${index + 1}`}
-                      loading={index < 3 ? "eager" : "lazy"}
-                      decoding="async"
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        e.target.src = 'https://via.placeholder.com/100x100?text=No+Image';
-                      }}
-                    />
+                    <svg
+                      className="w-4 h-4 text-gray-600 cursor-pointer"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M5 15l7-7 7 7"
+                      />
+                    </svg>
                   </button>
-                ))}
+                )}
+                {displayedImages.length > 3 && (
+                  <button
+                    onClick={scrollThumbnailsPrev}
+                    className="lg:hidden flex w-8 h-8 items-center cursor-pointer justify-center bg-white border border-gray-200 rounded-full shadow-sm hover:bg-gray-50 hover:border-gray-300 transition-all z-10 shrink-0"
+                    aria-label="Previous images"
+                  >
+                    <svg
+                      className="w-4 h-4 text-gray-600 cursor-pointer"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M15 19l-7-7 7-7"
+                      />
+                    </svg>
+                  </button>
+                )}
+
+                {/* Thumbnail Container */}
+                <div
+                  ref={thumbnailContainerRef}
+                  className="flex flex-row lg:flex-col gap-2 lg:gap-3 overflow-x-auto lg:overflow-x-hidden lg:overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100"
+                  style={{ maxHeight: "calc(60vh - 200px)" }}
+                >
+                  {displayedImages.map((img, index) => (
+                    <button
+                      key={img.id || index}
+                      onClick={() => handleThumbnailClick(img.url, index)}
+                      className={`shrink-0 w-16 h-16 lg:w-20 lg:h-20 bg-gray-100 rounded-lg overflow-hidden border-2 transition-all ${
+                        selectedThumbIndex === index
+                          ? "border-lima-600 ring-2 ring-lima-200"
+                          : "border-gray-200 hover:border-gray-300"
+                      }`}
+                    >
+                      <img
+                        src={img.url}
+                        alt={`${product.name} view ${index + 1}`}
+                        loading={index < 3 ? "eager" : "lazy"}
+                        decoding="async"
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.target.src =
+                            "https://via.placeholder.com/100x100?text=No+Image";
+                        }}
+                      />
+                    </button>
+                  ))}
+                </div>
+
+                {/* Down Arrow (Desktop) / Right Arrow (Mobile) */}
+                {displayedImages.length > 4 && (
+                  <button
+                    onClick={scrollThumbnailsNext}
+                    className="hidden lg:flex w-8 h-8 items-center justify-center bg-white border border-gray-200 rounded-full shadow-sm hover:bg-gray-50 hover:border-gray-300 transition-all z-10"
+                    aria-label="Next images"
+                  >
+                    <svg
+                      className="w-4 h-4 text-gray-600"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
+                  </button>
+                )}
+                {displayedImages.length > 3 && (
+                  <button
+                    onClick={scrollThumbnailsNext}
+                    className="lg:hidden flex w-8 h-8 items-center justify-center bg-white border border-gray-200 rounded-full shadow-sm hover:bg-gray-50 hover:border-gray-300 transition-all z-10 shrink-0"
+                    aria-label="Next images"
+                  >
+                    <svg
+                      className="w-4 h-4 text-gray-600"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M9 5l7 7-7 7"
+                      />
+                    </svg>
+                  </button>
+                )}
               </div>
 
               {/* Main Image */}
@@ -735,7 +876,8 @@ const ProductDetail = () => {
                       decoding="async"
                       className="w-full h-full object-contain"
                       onError={(e) => {
-                        e.target.src = 'https://via.placeholder.com/600x600?text=No+Image';
+                        e.target.src =
+                          "https://via.placeholder.com/600x600?text=No+Image";
                       }}
                     />
                   ) : (
@@ -805,7 +947,7 @@ const ProductDetail = () => {
                       <button
                         key={size.id}
                         onClick={() => setSelectedSizeId(size.id)}
-                        className={`px-4 py-2 min-w-12 border-2 rounded font-medium text-sm transition-all ${
+                        className={`px-4 py-2 min-w-12 border-2 rounded font-medium text-sm transition-all cursor-pointer ${
                           selectedSizeId === size.id
                             ? "border-lima-600 bg-lima-600 text-white"
                             : "border-gray-300 text-gray-700 hover:border-gray-400"
@@ -828,7 +970,7 @@ const ProductDetail = () => {
                       <button
                         key={color.id}
                         onClick={() => setSelectedColorId(color.id)}
-                        className={`w-10 h-10 rounded-full border-2 transition-all ${
+                        className={`w-10 h-10 rounded-full border-2 transition-all cursor-pointer ${
                           selectedColorId === color.id
                             ? "border-gray-900 ring-2 ring-offset-2 ring-gray-900"
                             : "border-gray-300 hover:border-gray-400"
@@ -851,7 +993,7 @@ const ProductDetail = () => {
               <div className="space-y-3 pt-2">
                 <button
                   onClick={handleBuyOnAmazon}
-                  className="w-full bg-orange-500 text-white py-3 px-6 rounded font-semibold text-base hover:bg-orange-600 transition-all duration-300 inline-flex items-center justify-center"
+                  className="cursor-pointer w-full bg-orange-500 text-white py-3 px-6 rounded font-semibold text-base hover:bg-orange-600 transition-all duration-300 inline-flex items-center justify-center"
                 >
                   Buy on Amazon
                 </button>
@@ -875,7 +1017,7 @@ const ProductDetail = () => {
                   </button> */}
                   <button
                     onClick={handleWishlistClick}
-                    className={`flex items-center gap-2 text-sm font-semibold px-3 py-2 rounded-lg border transition-colors ${
+                    className={`cursor-pointer flex items-center gap-2 text-sm font-semibold px-3 py-2 rounded-lg border transition-colors ${
                       isWishlisted
                         ? "border-lima-600 text-lima-700 bg-white"
                         : "border-gray-300 text-gray-700 hover:border-lima-600 hover:text-lima-700"
@@ -937,7 +1079,7 @@ const ProductDetail = () => {
               </button> */}
               <button
                 onClick={() => setActiveTab("reviews")}
-                className={`py-4 px-2 border-b-2 font-medium transition-colors ${
+                className={`cursor-pointer py-4 px-2 border-b-2 font-medium transition-colors ${
                   activeTab === "reviews"
                     ? "border-gray-900 text-gray-900"
                     : "border-transparent text-gray-500 hover:text-gray-900"
@@ -949,7 +1091,7 @@ const ProductDetail = () => {
             <div className="py-8">
               {activeTab === "description" && (
                 <div>
-                  <h3 className="text-lg font-semibold mb-4">
+                  <h3 className="cursor-pointer text-lg font-semibold mb-4">
                     Product Description
                   </h3>
                   <p className="text-gray-600 leading-relaxed mb-4">

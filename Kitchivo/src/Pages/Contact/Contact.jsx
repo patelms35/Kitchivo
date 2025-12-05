@@ -661,25 +661,42 @@ const Contact = () => {
         </div>
       </section>
 
-      {/* Contact Info Cards – unchanged */}
+      {/* Contact Info Cards – with hover effects */}
       <section className="py-12 sm:py-16 bg-gray-50" id="contact-info">
         <div className="max-w-7xl mx-auto px-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {contactInfo.map((info, i) => (
-              <div key={i} className="bg-white p-6 rounded-xl shadow-sm">
-                <div className="w-12 h-12 bg-lima-100 rounded-lg flex items-center justify-center text-lima-600 mb-4">
+              <div 
+                key={i} 
+                className="group bg-white p-6 rounded-xl shadow-sm border border-transparent hover:shadow-xl hover:border-lima-200 hover:-translate-y-2 transition-all duration-300 ease-out cursor-pointer relative overflow-hidden"
+              >
+                {/* Background gradient on hover */}
+                <div className="absolute inset-0 bg-gradient-to-br from-lima-50/0 to-lima-100/0 group-hover:from-lima-50/50 group-hover:to-lima-100/30 transition-all duration-300 pointer-events-none" />
+                
+                {/* Icon container with animation */}
+                <div className="relative w-12 h-12 bg-lima-100 rounded-lg flex items-center justify-center text-lima-600 mb-4 group-hover:bg-lima-600 group-hover:text-white group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 ease-out group-hover:shadow-lg group-hover:shadow-lima-200">
                   {info.icon}
                 </div>
-                <h3 className="font-bold text-lg mb-2">{info.title}</h3>
+                
+                {/* Title with underline animation */}
+                <h3 className="relative font-bold text-lg mb-2 text-gray-900 group-hover:text-lima-700 transition-colors duration-300">
+                  {info.title}
+                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-lima-500 group-hover:w-full transition-all duration-300 ease-out" />
+                </h3>
+                
+                {/* Details */}
                 {info.details.map((d, idx) => (
-                  <p key={idx} className="text-gray-600 text-sm">
+                  <p key={idx} className="relative text-gray-600 text-sm group-hover:text-gray-700 transition-colors duration-200">
                     {info.link && idx === 0 ? (
-                      <a href={info.link} className="hover:text-lima-600">{d}</a>
+                      <a href={info.link} className="hover:text-lima-600 transition-colors">{d}</a>
                     ) : (
                       d
                     )}
                   </p>
                 ))}
+
+                {/* Corner accent */}
+                <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-bl from-lima-500/0 to-transparent group-hover:from-lima-500/10 transition-all duration-300 rounded-bl-full" />
               </div>
             ))}
           </div>
