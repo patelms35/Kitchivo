@@ -388,12 +388,18 @@ const ProductDetail = () => {
 
   // Active variant from selected size and/or color
   const activeVariant = useMemo(() => {
-    if (!product?.variants) return null;
+    if (!product?.variants || !product.variants.length) return null;
 
     const hasSize = !!selectedSizeId;
     const hasColor = !!selectedColorId;
 
-    if (!hasSize && !hasColor) return null;
+    // If there is exactly one variant and nothing is selected, use that by default
+    if (!hasSize && !hasColor) {
+      if (product.variants.length === 1) {
+        return product.variants[0];
+      }
+      return null;
+    }
 
     const selectedSizeKey =
       selectedSizeId != null ? String(selectedSizeId) : null;

@@ -62,7 +62,7 @@ const ProfileEdit = () => {
       const resultAction = await dispatch(updateUserProfileThunk(formData));
       if (updateUserProfileThunk.fulfilled.match(resultAction)) {
         toast.success(resultAction.payload?.message || "Profile updated successfully");
-        navigate("/");
+        navigate("/profile");
       } else {
         const errorMessage =
           resultAction.payload?.message ||
