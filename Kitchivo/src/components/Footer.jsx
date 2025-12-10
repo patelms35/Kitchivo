@@ -9,7 +9,6 @@ const Footer = () => {
 
 
   const { systemSettings } = useSelector((state) => state.commanStore);
-  console.log(systemSettings);
 
   // Smooth scroll function
   const scrollToSection = (id) => {

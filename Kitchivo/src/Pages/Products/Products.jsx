@@ -70,7 +70,6 @@ const Products = () => {
 
     try {
       const resultAction = await dispatch(createWishlist({ product_id: productId }));
-      console.log("resultAction", resultAction)
       if (resultAction?.payload?.status == 1) {
         toast.success(resultAction?.payload?.message || 'Added to wishlist');
         dispatch(fetchAllProducts(currentFilters));

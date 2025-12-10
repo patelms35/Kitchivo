@@ -9,7 +9,6 @@ const registerSendOtp = async (data) => {
         formdata.append("phone", data?.phone);
 
         const res = await baseAPI.post(`send-otp/`, formdata);
-        console.log("res", res);
         return res.data;
     } catch (error) {
         console.log(error);

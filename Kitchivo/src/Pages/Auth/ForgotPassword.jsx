@@ -72,7 +72,6 @@ const ForgotPassword = () => {
 
       setSubmitting(true);
       await dispatch(forgotPasswordToVerifyOtp(obj)).then((res) => {
-        console.log("res in veri opt",res)
         if (res?.payload?.status == 1) {
           toast.success((res?.payload?.message || "OTP verified successfully"));
           setStep(3);
@@ -118,7 +117,6 @@ const ForgotPassword = () => {
         .required("Confirm your password"),
     }),
     onSubmit: async (values, { setSubmitting, resetForm }) => {
-      console.log("Password reset:", values.newPassword);
       setSubmitting(true);
       const obj = {
         email:userEmail,
@@ -126,7 +124,6 @@ const ForgotPassword = () => {
         new_password : values.newPassword
       }
       await dispatch(resetPassword(obj)).then((res) => {
-        console.log("res in  reset pass",res)
         if (res?.payload?.status == 1) {
           toast.success((res?.payload?.message || "Password reset successfully"));
           navigate("/login");

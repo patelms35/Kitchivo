@@ -43,7 +43,6 @@ const Register = () => {
     validationSchema,
     onSubmit: async (values, { setSubmitting, resetForm }) => {
       setSubmitting(true);
-      console.log("Register form submitted:", values);
       const res = await AuthServices.registerSendOtp(values)
       if (res && res?.status == 1) {
         navigate("/verify-otp", { state: { email: values.email, fullName: values.fullName, password: values.password, phone: values.phone } });

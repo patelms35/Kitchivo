@@ -32,7 +32,6 @@ const VerifyOTP = () => {
     }),
     onSubmit: (values) => {
       const otpValue = values.otp.join("");
-      console.log("OTP Submitted:", otpValue);
       const obj = {
         email: email,
         otp: otpValue,
@@ -41,7 +40,6 @@ const VerifyOTP = () => {
         name:fullName
       }
       dispatch(verifyOtp(obj)).then((res) => {
-        console.log("responce in Verfiy opt",res)
         if(res?.payload?.status === 1){
           toast.success("OTP Verified Successfully");
           navigate("/login");
@@ -104,9 +102,7 @@ const VerifyOTP = () => {
   const handleResend = () => {
     if (!canResend) return;
 
-    console.log("Resend OTP to:", email);
     dispatch(resendOtp(email)).then((res) => {
-      console.log("responce in Verfiy opt", res)
       // navigate("/");
       formik.setFieldValue("otp", ["", "", "", "", "", ""]);
       setTimer(60);

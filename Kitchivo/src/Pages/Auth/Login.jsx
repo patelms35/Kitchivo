@@ -36,7 +36,6 @@ const Login = () => {
     validationSchema,
     onSubmit: async (values, { setSubmitting, resetForm }) => {
       setSubmitting(true)
-      console.log("Login form submitted:", values);
       if (values.rememberMe) {
         localStorage.setItem("email", values.email);
         localStorage.setItem("password", values.password);

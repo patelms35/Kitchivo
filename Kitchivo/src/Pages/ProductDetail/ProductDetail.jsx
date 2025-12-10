@@ -610,8 +610,12 @@ const ProductDetail = () => {
   };
 
   const handleBuyOnAmazon = () => {
-    if (product?.url) {
-      window.open(product.url, "_blank", "noopener,noreferrer");
+    const variantUrl = activeVariant?.url;
+    const fallbackUrl = product?.url;
+    const targetUrl = variantUrl || fallbackUrl;
+
+    if (targetUrl) {
+      window.open(targetUrl, "_blank", "noopener,noreferrer");
     }
   };
 

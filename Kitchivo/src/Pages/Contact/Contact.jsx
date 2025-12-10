@@ -452,9 +452,7 @@ const Contact = () => {
     validationSchema,
     onSubmit: async (values, { setSubmitting, resetForm }) => {
       setSubmitting(true)
-      console.log("Form submitted:", values);
       await dispatch(createContact(values)).then((res) => {
-        console.log("res in  conatcs pass", res)
         if (res?.payload?.status == 1) {
           toast.success((res?.payload?.message || "Message Sent Successfully!"));
           setSubmitting(false)
