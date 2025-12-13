@@ -377,13 +377,37 @@ const ProductDetail = () => {
     }
   }, []);
 
-  // All images: common images + all variant images (default view)
+  // All images: featured image (if any) + common images + all variant images (default view)
   const allImages = useMemo(() => {
     if (!product) return [];
+
     const commonImages = product.common_images || [];
     const variantImages =
       product.variants?.flatMap((v) => v.images || []) || [];
-    return [...commonImages, ...variantImages];
+
+    const mergedImages = [...commonImages, ...variantImages];
+    const seen = new Set();
+    const ordered = [];
+
+    if (product.featured_image) {
+      const featuredUrl = product.featured_image;
+      if (featuredUrl) {
+        ordered.push({
+          id: "featured",
+          url: featuredUrl,
+        });
+        seen.add(featuredUrl);
+      }
+    }
+
+    mergedImages.forEach((img) => {
+      const url = img?.url;
+      if (!url || seen.has(url)) return;
+      seen.add(url);
+      ordered.push(img);
+    });
+
+    return ordered;
   }, [product]);
 
   // Active variant from selected size and/or color
@@ -820,6 +844,7 @@ const ProductDetail = () => {
                         alt={`${product.name} view ${index + 1}`}
                         loading={index < 3 ? "eager" : "lazy"}
                         decoding="async"
+                        sizes="80px"
                         className="w-full h-full object-cover"
                         onError={(e) => {
                           e.target.src =
@@ -884,6 +909,8 @@ const ProductDetail = () => {
                       alt={product.name}
                       loading="eager"
                       decoding="async"
+                      fetchpriority="high"
+                      sizes="(min-width: 1024px) 600px, 100vw"
                       className="w-full h-full object-contain"
                       onError={(e) => {
                         e.target.src =
